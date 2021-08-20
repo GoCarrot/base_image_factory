@@ -1,0 +1,60 @@
+version: 2.1
+
+orbs:
+  teak: teak/sdk-utils@dev:alpha
+
+jobs:
+  setup:
+    docker:
+      - image: cimg/base:2021.04
+
+    steps:
+      - teak/packer-install:
+          version: 1.7.5-dev
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
+
+workflows:
+  version: 2
+  build-development:
+    jobs:
+      - setup:
+          filters:
+            branches:
+              only:
+                - develop
+      - teak/packer-build:
+          version: 1.7.5-dev
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
+          name: "Generate Images (Development)"
+          pre-steps:
+            - run:
+                command: sudo apt-get update && sudo apt-get install -y ansible awscli
+          path: "packer"
+          var: "region=us-east-1,environment=development"
+          artifact_path: packer/build
+          context: AWS-Write
+          requires:
+            - setup
+  build-production:
+    jobs:
+      - setup:
+          filters:
+            branches:
+              only:
+                - main
+      - teak/packer-build:
+          version: 1.7.5-dev
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
+          name: "Generate Images (Production)"
+          pre-steps:
+            - run:
+                command: sudo apt-get update && sudo apt-get install -y ansible awscli
+          path: "packer"
+          var: "region=us-east-1,environment=production"
+          artifact_path: packer/build
+          context: AWS-Write
+          requires:
+            - setup
