@@ -156,11 +156,18 @@ source "amazon-ebs" "debian" {
     # gp3 volumes in order to minimize the time to copy the built image to
     # our fresh volume.
     device_name = "/dev/xvda"
-    volume_size = 8
+    volume_size = 2
     iops        = 3000
     throughput  = 300
 
     delete_on_termination = true
+  }
+
+  # Scrub our gp3 preferences from the AMI.
+  ami_block_device_mappings {
+    volume_type = "gp2"
+    device_name = "/dev/xvda"
+    volume_size = 2
   }
 
   ami_virtualization_type = "hvm"
