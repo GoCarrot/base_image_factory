@@ -1,0 +1,41 @@
+[Unit]
+Description=TD Agent Bit
+Requires=network.target
+After=network.target
+
+[Service]
+ReadOnlyPaths=/
+ProtectSystem=strict
+StateDirectory=td-agent-bit
+CacheDirectory=td-agent-bit
+LogsDirectory=td-agent-bit
+ConfigurationDirectory=td-agent-bit
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateUsers=yes
+ProtectClock=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+RemoveIPC=yes
+UMask=0077
+
+SystemCallArchitectures=native
+SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @privileged @raw-io @reboot @resources @swap
+
+CapabilityBoundingSet=
+RestrictAddressFamilies=~AF_NETLINK AF_PACKET
+RestrictNamespaces=yes
+
+User={{ fluentbit_user.name }}
+Type=simple
+ExecStart=/opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Cleanup temp files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /var/cache/apt/
+        - /var/lib/apt/lists/
+        - /var/log/apt/
+        - /etc/mailname
+        - /var/log/bootstrap.log
+        - /var/log/dpkg.log
+        - /var/log/install_packages.list

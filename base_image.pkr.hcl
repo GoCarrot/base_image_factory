@@ -198,4 +198,8 @@ build {
       source_ami = local.source_ami[arch.key]
     }
   }
+
+  provisioner "ansible" {
+    playbook_file = "${path.root}/playbooks/fluentbit.yml"
+  }
 }
