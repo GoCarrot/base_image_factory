@@ -168,6 +168,8 @@ source "amazon-ebs" "debian" {
     volume_type = "gp2"
     device_name = "/dev/xvda"
     volume_size = 2
+
+    delete_on_termination = true
   }
 
   ami_virtualization_type = "hvm"
