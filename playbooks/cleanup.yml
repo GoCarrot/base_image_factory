@@ -15,3 +15,20 @@
         - /var/log/bootstrap.log
         - /var/log/dpkg.log
         - /var/log/install_packages.list
+        - /var/lib/cloud
+        - /var/log/cloud-init-local.log
+        - /var/log/cloud-init.log
+        - /root/.bash_history
+        - /home/admin/.bash_history
+        - /home/vagrant/.bash_history
+        - /home/admin/.ssh/authorized_keys
+        - /root/.ssh/authorized_keys
+
+    - name: Cleanup log files
+      shell: find /var/log -type f | xargs rm
+
+    - name: Shred hostkeys
+      shell: shred --remove /etc/ssh/ssh_host_*
+
+    - name: Remove resolv.conf
+      shell: if [ ! -L /etc/resolv.conf ]; then rm /etc/resolv.conf; fi
