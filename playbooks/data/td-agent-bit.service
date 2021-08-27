@@ -36,6 +36,12 @@ Environment="TEAK_SERVICE=unknown"
 
 User={{ fluentbit_user.name }}
 Type=simple
+# I would prefer to get the hostname from systemd using %H. However, with
+# cloud-init we will dynamically change our hostname during boot, and
+# cloud-init doesn't provide a hook point that would let us reload systemd
+# config _after_ updating hostname but _before_ completing the cloud-init.target
+# So, we run in a subshell that grabs the hostname at the time of ExecStart
+# to provide it to td-agent-bit.
 ExecStart=/bin/sh -c "HOSTNAME=`hostname` /opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}"
 Restart=always
 
