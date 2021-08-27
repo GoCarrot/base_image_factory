@@ -6,6 +6,11 @@ packer {
       version = "=1.0.2-dev"
       source  = "github.com/AlexSc/amazon"
     }
+
+    vagrant = {
+      version = "~> 1"
+      source  = "github.com/hashicorp/vagrant"
+    }
   }
 }
 
@@ -184,6 +189,13 @@ source "amazon-ebs" "debian" {
   }
 }
 
+source "vagrant" "debian" {
+  source_path = "teak/bullseye64"
+  provider    = "vmware_desktop"
+
+  communicator = "ssh"
+}
+
 build {
   dynamic "source" {
     for_each = local.arch_map
@@ -199,10 +211,14 @@ build {
     }
   }
 
+  source "vagrant.debian" {
+
+  }
+
   provisioner "ansible" {
     playbook_file = "${path.root}/playbooks/fluentbit.yml"
     extra_arguments = [
-      "--extra-vars", "build_environment=${var.environment} region=${var.region}"
+      "--extra-vars", "build_environment=${var.environment} region=${var.region} is_vagrant=${source.type == "vagrant"}"
     ]
   }
 }

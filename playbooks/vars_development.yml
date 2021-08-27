@@ -1,3 +1,4 @@
 ---
+is_vagrant: false
 server_environment: development
 region: us-west-2

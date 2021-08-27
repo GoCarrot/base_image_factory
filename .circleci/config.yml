@@ -32,6 +32,7 @@ workflows:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
           var: "region=us-east-1,environment=development"
+          except: "vagrant.*"
           context: AWS-Write
           requires:
             - setup
@@ -51,6 +52,7 @@ workflows:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
           var: "region=us-east-1,environment=production"
+          except: "vagrant.*"
           context: AWS-Write
           requires:
             - setup
