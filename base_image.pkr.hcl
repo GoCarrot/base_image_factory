@@ -170,9 +170,11 @@ source "amazon-ebs" "debian" {
 
   # Scrub our gp3 preferences from the AMI.
   ami_block_device_mappings {
-    volume_type = "gp2"
+    volume_type = "gp3"
     device_name = "/dev/xvda"
     volume_size = 2
+    iops        = 3000
+    throughput  = 125
 
     delete_on_termination = true
   }
