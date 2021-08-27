@@ -16,6 +16,7 @@
         - /var/log/dpkg.log
         - /var/log/install_packages.list
         - /var/lib/cloud
+        - /var/lib/chrony
         - /var/log/cloud-init-local.log
         - /var/log/cloud-init.log
         - /root/.bash_history
