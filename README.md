@@ -12,5 +12,12 @@ We use `Root Image` to mean a completely unprovisioned bare image with nothing b
 
 ## Image Specifications
 
-The Base Image provides [FluentBit](https://fluentbit.io) as td-agent-bit, with the following enhancements:
-- Downstream images made add additional configuration for fluentbit in /etc/td-agent-bit/conf.d/\*.conf. Files must be prefixed with two digits. 00 to 29 and 90 to 95 are reserved for use by this image.
+When this image provides the option to include additional configuration files in a directory, file names must be prefixed with two digits and end in .conf. The prefixes 00 to 29 and 90 to 95 are reserved for use by this image.
+
+The Base Image provides [FluentBit](https://fluentbit.io) as td-agent-bit, with the following defaults:
+- systemd, cloudinit, and fluentbit logs are tailed under ancillary.{process}
+- ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/{{ process_name }}:{{ service_name }}.{{ hostname }}
+- logs with the service.default tag will be outputted to /teak/server/{{ server_environment }}/{{ service_name }}:{{ service_name }}.{{ hostname }}
+- Downstream images made add additional configuration for fluentbit in /etc/td-agent-bit/conf.d/\*.conf.
+- Downstream images can reconfigure log destinations by changing the TEAK_SERVICE environment variable for td-agent-bit. To do this, create a file in /lib/systemd/system/td-agent-bit.service.d/{name}.conf with the contents ```[Service]
+Environment="TEAK_SERVICE={{service_name}}"```.
