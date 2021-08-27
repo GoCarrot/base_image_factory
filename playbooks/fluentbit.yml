@@ -141,6 +141,14 @@
         group: root
         mode: 0644
 
+    - name: Configure FluentBit Logrotate
+      template:
+        src: data/fluentbit-logrotate.conf
+        dest: /etc/logrotate.d/td-agent-bit
+        owner: root
+        group: root
+        mode: 0644
+
     - name: Enable FluentBit
       service:
         name: td-agent-bit
