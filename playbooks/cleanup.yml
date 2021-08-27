@@ -24,6 +24,8 @@
         - /home/vagrant/.bash_history
         - /home/admin/.ssh/authorized_keys
         - /root/.ssh/authorized_keys
+        - /etc/machine-id
+        - /var/lib/dbus/machine-id
 
     - name: Cleanup log files
       shell: find /var/log -type f | xargs rm
@@ -33,3 +35,6 @@
 
     - name: Remove resolv.conf
       shell: if [ ! -L /etc/resolv.conf ]; then rm /etc/resolv.conf; fi
+
+    - name: Touch machine-id
+      shell: touch /etc/machine-id
