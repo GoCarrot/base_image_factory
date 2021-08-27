@@ -19,7 +19,4 @@ The Base Image provides [FluentBit](https://fluentbit.io) as td-agent-bit, with 
 - ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
 - logs with the service.default tag will be outputted to /teak/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
 - Downstream images made add additional configuration for fluentbit in /etc/td-agent-bit/conf.d/\*.conf.
-- Downstream images can reconfigure log destinations by changing the TEAK_SERVICE environment variable for td-agent-bit. To do this, create a file in /lib/systemd/system/td-agent-bit.service.d/\*.conf with the contents ```
-[Service]
-Environment="TEAK_SERVICE={{service_name}}"
-```
+- Downstream images can reconfigure log destinations by changing the TEAK_SERVICE variable for td-agent-bit. To do this, create a file in /etc/td-agent-bit/conf.d/\*.conf with the contents ```@SET TEAK_SERVICE={{service_name}}```
