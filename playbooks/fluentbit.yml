@@ -149,4 +149,9 @@
         group: root
         mode: 0644
 
+    - name: Enable FluentBit
+      service:
+        name: td-agent-bit
+        enabled: yes
+
 - import_playbook: cleanup.yml
