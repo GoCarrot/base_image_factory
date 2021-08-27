@@ -14,6 +14,8 @@ We use `Root Image` to mean a completely unprovisioned bare image with nothing b
 
 When this image provides the option to include additional configuration files in a directory, file names must be prefixed with two digits and end in .conf. The prefixes 00 to 29 and 90 to 95 are reserved for use by this image.
 
+### FluentBit
+
 The Base Image provides [FluentBit](https://fluentbit.io) as td-agent-bit, with the following defaults:
 - systemd, cloudinit, and fluentbit logs are tailed under ancillary.{process}
 - ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
@@ -21,24 +23,19 @@ The Base Image provides [FluentBit](https://fluentbit.io) as td-agent-bit, with 
 - Downstream images made add additional configuration for fluentbit in /etc/td-agent-bit/conf.d/\*.conf.
 - Downstream images can reconfigure log destinations by changing the TEAK_SERVICE variable for td-agent-bit. To do this, create a file in /etc/td-agent-bit/conf.d/\*.conf with the contents ```@SET TEAK_SERVICE={{service_name}}```
 
-FluentBit is not enabled by default in this image. This is so that downstream provisioning doesn't have to deal with the logging agent potentially attempting to push logs into an environment that doesn't accept logs, and to minimize cleanup between provisioning steps.
+FluentBit is enabled by default in this image.
 
-To enable FluentBit at boot, use the following user-data
+#### Special Configuration Notes
+Because FluentBit does not allow glob matches for parser or plugins config, and does not allow configuring parsers or plugins in normal config files, this image provides the files /etc/td-agent-bit/10_service_plugins.conf and /etc/td-agent-bit/10_service_parsers.conf. Downstream provisioners may _append_ content to these files in order to provide plugins and parsers for their usecases.
+
+#### Disabling FluentBit
+Downstream provisioners almost certainly do not want FluentBit running while they are doing provisioning.
+
+To disable FluentBit at boot, use the following user-data
 ```
 #cloud-config
 bootcmd:
-  - [systemctl, enable, td-agent-bit]
-  - [systemctl, start, --no-block, td-agent-bit]
+  - [systemctl, stop, --no-block, td-agent-bit]
 ```
 
-This can/should be combined with a write_files config in order to set the service as well:
-
-```
-#cloud-config
-bootcmd:
-  - [systemctl, enable, td-agent-bit]
-  - [systemctl, start, --no-block, td-agent-bit]
-write_files:
-  - path: /etc/td-agent-bit/conf.d/50_environment.conf
-    content: "@SET TEAK_SERVICE=your_service"
-```
+Be sure to wipe `/var/lib/cloud` after provisioning so that this user-data does not persist to live servers.
