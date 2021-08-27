@@ -218,7 +218,7 @@ build {
   provisioner "ansible" {
     playbook_file = "${path.root}/playbooks/fluentbit.yml"
     extra_arguments = [
-      "--extra-vars", "build_environment=${var.environment} region=${var.region} is_vagrant=${source.type == "vagrant"}"
+      "--extra-vars", "build_environment=${var.environment} region=${var.region} build_type=${source.type}"
     ]
   }
 }

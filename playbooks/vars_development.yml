@@ -1,4 +1,4 @@
 ---
-is_vagrant: false
+build_type: vagrant
 server_environment: development
 region: us-west-2
