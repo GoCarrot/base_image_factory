@@ -36,7 +36,7 @@ Environment="TEAK_SERVICE=unknown"
 
 User={{ fluentbit_user.name }}
 Type=simple
-ExecStart=/bin/bash -c "HOSTNAME=`hostname` /opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}"
+ExecStart=/bin/sh -c "HOSTNAME=`hostname` /opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}"
 Restart=always
 
 [Install]
