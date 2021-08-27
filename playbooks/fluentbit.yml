@@ -2,6 +2,15 @@
 - hosts: all
   become: yes
 
+  vars:
+    build_environment: development
+
+  pre_tasks:
+    - include_vars: "{{ item }}"
+      with_first_found:
+        - "vars_{{ build_environment }}.yml"
+        - "vars_default.yml"
+
   tasks:
     - name: Create fluentbit User
       register: fluentbit_user
@@ -103,6 +112,14 @@
       template:
         src: data/10_standard_in.conf
         dest: /etc/td-agent-bit/conf.d/10_standard_in.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Create FluentBit Standard Outputs
+      template:
+        src: data/20_standard_out.conf
+        dest: /etc/td-agent-bit/conf.d/20_standard_out.conf
         owner: root
         group: root
         mode: 0644

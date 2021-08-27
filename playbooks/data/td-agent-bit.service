@@ -32,6 +32,8 @@ CapabilityBoundingSet=
 RestrictAddressFamilies=~AF_NETLINK AF_PACKET
 RestrictNamespaces=yes
 
+Environment="HOSTNAME=%H" "TEAK_SERVICE=unknown"
+
 User={{ fluentbit_user.name }}
 Type=simple
 ExecStart=/opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}
