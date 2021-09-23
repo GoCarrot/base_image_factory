@@ -29,8 +29,8 @@ workflows:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
           var: "region=us-east-1,environment=development"
           except: "vagrant.*"
-          context: AWS-Write
           packer_log: "1"
+          context: AWS-Write
           requires:
             - setup
   build-production:
