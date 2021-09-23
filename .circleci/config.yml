@@ -10,7 +10,9 @@ jobs:
 
     steps:
       - teak/packer-install:
-          version: 1.7.5
+          version: 1.7.5-dev2
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
 
 workflows:
   version: 2
@@ -22,7 +24,9 @@ workflows:
               only:
                 - develop
       - teak/packer-build:
-          version: 1.7.5
+          version: 1.7.5-dev2
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
           name: "Generate Images (Development)"
           pre-steps:
             - run:
@@ -41,7 +45,9 @@ workflows:
               only:
                 - main
       - teak/packer-build:
-          version: 1.7.5
+          version: 1.7.5-dev2
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
           name: "Generate Images (Production)"
           pre-steps:
             - run:
