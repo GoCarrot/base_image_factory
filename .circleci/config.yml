@@ -30,6 +30,8 @@ workflows:
           var: "region=us-east-1,environment=development"
           except: "vagrant.*"
           context: AWS-Write
+          environment:
+            PACKER_LOG: 1
           requires:
             - setup
   build-production:
