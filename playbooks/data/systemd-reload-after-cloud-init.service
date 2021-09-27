@@ -1,0 +1,18 @@
+[Unit]
+Description=Reload systemd after cloud-init has run
+DefaultDependencies=no
+Wants=cloud-config.target
+After=cloud-config.target
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl daemon-reload
+RemainAfterExit=yes
+TimeoutSec=0
+
+# Output needs to appear in instance console output
+StandardOutput=journal+console
+
+[Install]
+WantedBy=cloud-init.target

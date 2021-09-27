@@ -32,7 +32,7 @@ CapabilityBoundingSet=
 RestrictAddressFamilies=~AF_NETLINK AF_PACKET
 RestrictNamespaces=yes
 
-Environment="TEAK_SERVICE=unknown"
+Environment="TEAK_SERVICE=unknown" "HOSTNAME=%H"
 
 User={{ fluentbit_user.name }}
 Type=simple
@@ -42,7 +42,7 @@ Type=simple
 # config _after_ updating hostname but _before_ completing the cloud-init.target
 # So, we run in a subshell that grabs the hostname at the time of ExecStart
 # to provide it to td-agent-bit.
-ExecStart=/bin/sh -c "HOSTNAME=`hostname` /opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}"
+ExecStart=/opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}
 Restart=always
 
 [Install]
