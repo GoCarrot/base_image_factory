@@ -2,15 +2,6 @@
 - hosts: all
   become: yes
 
-  vars:
-    build_environment: development
-
-  pre_tasks:
-    - include_vars: "{{ item }}"
-      with_first_found:
-        - "vars_{{ build_environment }}.yml"
-        - "vars_default.yml"
-
   tasks:
     - name: Create fluentbit User
       register: fluentbit_user
@@ -153,18 +144,3 @@
       service:
         name: td-agent-bit
         enabled: yes
-
-    - name: Create Systemd Reload Service
-      template:
-        src: data/systemd-reload-after-cloud-init.service
-        dest: /lib/systemd/system/systemd-reload-after-cloud-init.service
-        owner: root
-        group: root
-        mode: 0644
-
-    - name: Enable Systemd Reload
-      service:
-        name: systemd-reload-after-cloud-init
-        enabled: yes
-
-- import_playbook: cleanup.yml

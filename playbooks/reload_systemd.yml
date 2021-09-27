@@ -1,0 +1,17 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Create Systemd Reload Service
+      template:
+        src: data/systemd-reload-after-cloud-init.service
+        dest: /lib/systemd/system/systemd-reload-after-cloud-init.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enable Systemd Reload
+      service:
+        name: systemd-reload-after-cloud-init
+        enabled: yes
