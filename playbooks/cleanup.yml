@@ -8,21 +8,13 @@
         path: "{{ item }}"
         state: absent
       with_items:
-        - /var/cache/apt/
-        - /var/lib/apt/lists/
+        - /var/cache/
+        - /var/lib/apt/
         - /var/log/apt/
         - /etc/mailname
-        - /var/log/bootstrap.log
-        - /var/log/dpkg.log
-        - /var/log/install_packages.list
         - /var/lib/cloud
         - /var/lib/chrony
-        - /var/log/cloud-init-local.log
-        - /var/log/cloud-init.log
         - /root/.bash_history
-        - /home/admin/.bash_history
-        - /home/vagrant/.bash_history
-        - /home/admin/.ssh/authorized_keys
         - /root/.ssh/authorized_keys
         - /etc/machine-id
         - /var/lib/dbus/machine-id

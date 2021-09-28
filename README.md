@@ -14,9 +14,22 @@ We use `Root Image` to mean a completely unprovisioned bare image with nothing b
 
 When this image provides the option to include additional configuration files in a directory, file names must be prefixed with two digits and end in .conf. The prefixes 00 to 29 and 90 to 95 are reserved for use by this image.
 
+### TEAK_SERVICE
+
+The Base Image configures systemd to provide a TEAK_SERVICE environment variable to all systemd services with names starting with `teak-`. By default TEAK_SERVICE will be set to "unknown". To modify this create a configuration file in /etc/systemd/system/teak-.service.d/ with the contents
+
+```
+[Unit]
+Environment="TEAK_SERVICE={{service_name}}"
+```
+
+### teak-init.target
+
+The Base Image provides teak-init.target, which will not be active until all services provided by the Base Image are available. Downstream services should set `After=teak-init.target` in their unit configurations.
+
 ### FluentBit
 
-The Base Image provides [FluentBit](https://fluentbit.io) as td-agent-bit, with the following defaults:
+The Base Image provides [FluentBit](https://fluentbit.io) as teak-log-collector, with the following defaults:
 - systemd, cloudinit, and fluentbit logs are tailed under ancillary.{process}
 - ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
 - logs with the service.default tag will be outputted to /teak/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
@@ -35,7 +48,7 @@ To disable FluentBit at boot, use the following user-data
 ```
 #cloud-config
 bootcmd:
-  - [systemctl, stop, --no-block, td-agent-bit]
+  - [systemctl, stop, --no-block, teak-log-collector]
 ```
 
 Be sure to wipe `/var/lib/cloud` after provisioning so that this user-data does not persist to live servers.

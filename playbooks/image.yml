@@ -1,0 +1,17 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    build_environment: development
+
+  pre_tasks:
+    - include_vars: "{{ item }}"
+      with_first_found:
+        - "vars_{{ build_environment }}.yml"
+        - "vars_default.yml"
+
+- import_playbook: systemd.yml
+- import_playbook: reload_systemd.yml
+- import_playbook: fluentbit.yml
+- import_playbook: cleanup.yml

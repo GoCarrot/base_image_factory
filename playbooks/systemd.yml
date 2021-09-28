@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Create Teak services conf dir
+      register: systemd_teak_dropin
+      file:
+        path: /lib/systemd/system/teak-.service.d/
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: Create default TEAK_SERVICE environment
+      template:
+        src: data/00_teak_env.conf
+        dest: "{{ systemd_teak_dropin.path }}/00_teak_env.conf"
+        owner: root
+        group: root
+        mode: 0644

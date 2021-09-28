@@ -1,0 +1,7 @@
+# Downstream services can specify After=teak-init.target to ensure that they
+# do not boot until all base services have come up
+
+[Unit]
+Description=Teak base services availability
+Requires=teak-log-collector.service
+After=teak-log-collector.service

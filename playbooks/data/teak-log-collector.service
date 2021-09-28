@@ -1,15 +1,15 @@
 [Unit]
-Description=TD Agent Bit
+Description=Teak Log Collector (TD Agent Bit)
 Requires=network.target
 After=network.target
 
 [Service]
 ReadOnlyPaths=/
 ProtectSystem=strict
-StateDirectory=td-agent-bit
-CacheDirectory=td-agent-bit
-LogsDirectory=td-agent-bit
-ConfigurationDirectory=td-agent-bit
+StateDirectory=teak-log-collector
+CacheDirectory=teak-log-collector
+LogsDirectory=teak-log-collector
+ConfigurationDirectory=teak-log-collector
 
 NoNewPrivileges=yes
 PrivateTmp=yes
@@ -32,16 +32,10 @@ CapabilityBoundingSet=
 RestrictAddressFamilies=~AF_NETLINK AF_PACKET
 RestrictNamespaces=yes
 
-Environment="TEAK_SERVICE=unknown" "HOSTNAME=%H"
+Environment="HOSTNAME=%H"
 
 User={{ fluentbit_user.name }}
-Type=simple
-# I would prefer to get the hostname from systemd using %H. However, with
-# cloud-init we will dynamically change our hostname during boot, and
-# cloud-init doesn't provide a hook point that would let us reload systemd
-# config _after_ updating hostname but _before_ completing the cloud-init.target
-# So, we run in a subshell that grabs the hostname at the time of ExecStart
-# to provide it to td-agent-bit.
+Type=exec
 ExecStart=/opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}
 Restart=always
 

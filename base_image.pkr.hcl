@@ -223,4 +223,14 @@ build {
       "--extra-vars", "build_environment=${var.environment} region=${var.region} build_type=${source.type}"
     ]
   }
+
+  # Ansible leaves behind temp directories in the home directory of the user it
+  # logged in as. We always create that user with cloud-init, so nuke it and let
+  # cloud-init recreate everything on boot.
+  provisioner "shell" {
+    inline = [
+      "export CURRENT_USER=`whoami`",
+      "sudo userdel --remove --force $CURRENT_USER"
+    ]
+  }
 }
