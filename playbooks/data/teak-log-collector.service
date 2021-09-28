@@ -35,7 +35,7 @@ RestrictNamespaces=yes
 Environment="HOSTNAME=%H"
 
 User={{ fluentbit_user.name }}
-Type=exec
+Type=simple
 ExecStart=/opt/td-agent-bit/bin/td-agent-bit -c {{ fluentbit_config.dest }}
 Restart=always
 
