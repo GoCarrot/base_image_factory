@@ -144,7 +144,7 @@ source "amazon-ebs" "debian" {
 
   metadata_options {
     http_endpoint               = "enabled"
-    http_tokens                 = "required"
+    http_tokens                 = "optional"
     http_put_response_hop_limit = 1
   }
 
@@ -183,6 +183,12 @@ source "amazon-ebs" "debian" {
   ami_users               = split(",", data.amazon-parameterstore.ami_users.value)
   ena_support             = true
   sriov_support           = true
+
+  tags = {
+    Application = "None"
+    Environment = var.environment
+    CostCenter  = var.cost_center
+  }
 }
 
 source "vagrant" "debian" {
@@ -216,12 +222,12 @@ build {
       user_data = <<-EOT
       #cloud-config
       write_files:
-        content: |
-          [Service]
-          Environment="TEAK_SERVICE=${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
-        path: /etc/system.d/system/teak-.service.d/01_build_environment.conf
-        owner: root:root
-        permissions: '0644'
+        - content: |
+            [Service]
+            Environment="TEAK_SERVICE=${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+          path: /etc/systemd/system/teak-.service.d/01_build_environment.conf
+          owner: root:root
+          permissions: '0644'
 EOT
     }
   }
