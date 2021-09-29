@@ -166,3 +166,4 @@
       service:
         name: teak-log-collector
         enabled: yes
+        state: started

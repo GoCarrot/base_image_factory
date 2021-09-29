@@ -183,12 +183,6 @@ source "amazon-ebs" "debian" {
   ami_users               = split(",", data.amazon-parameterstore.ami_users.value)
   ena_support             = true
   sriov_support           = true
-
-  tags = {
-    Application = "None"
-    Environment = var.environment
-    CostCenter  = var.cost_center
-  }
 }
 
 source "vagrant" "debian" {
@@ -210,6 +204,25 @@ build {
       instance_type    = var.instance_type[arch.key]
 
       source_ami = local.source_ami[arch.key]
+
+      tags = {
+        Application = "None"
+        Environment = var.environment
+        CostCenter  = var.cost_center
+        # Same as AMI name.
+        Service = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+      }
+
+      user_data = <<-EOT
+      #cloud-config
+      write_files:
+        content: |
+          [Service]
+          Environment="TEAK_SERVICE=${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+        path: /etc/system.d/system/teak-.service.d/01_build_environment.conf
+        owner: root:root
+        permissions: '0644'
+EOT
     }
   }
 
