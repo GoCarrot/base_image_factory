@@ -159,8 +159,8 @@
         path: "{{ item }}"
         state: absent
       with_items:
-        /lib/systemd/system/td-agent-bit.service
-        /etc/td-agent-bit/
+        - /lib/systemd/system/td-agent-bit.service
+        - /etc/td-agent-bit/
 
     - name: Enable Teak Log Aggregator
       service:
