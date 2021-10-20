@@ -4,6 +4,7 @@ Requires=network.target
 After=network.target
 
 [Service]
+Slice=teak-services.slice
 ReadOnlyPaths=/
 ProtectSystem=strict
 StateDirectory=teak-log-collector

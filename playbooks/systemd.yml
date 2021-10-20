@@ -20,6 +20,14 @@
         group: root
         mode: 0644
 
+    - name: Create teak slices
+      template:
+        src: data/teak-services.slice
+        dest: /lib/systemd/system/teak-services.slice
+        owner: root
+        group: root
+        mode: 0644
+
     - name: Disable apt-daily
       systemd:
         name: "{{ item }}.timer"
