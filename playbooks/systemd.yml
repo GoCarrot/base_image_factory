@@ -19,3 +19,12 @@
         owner: root
         group: root
         mode: 0644
+
+    - name: Disable apt-daily
+      systemd:
+        name: "{{ item }}.timer"
+        enabled: no
+        state: stopped
+      with_items:
+        - apt-daily
+        - apt-daily-upgrade
