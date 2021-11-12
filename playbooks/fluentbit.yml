@@ -167,7 +167,3 @@
         name: teak-log-collector
         enabled: yes
         state: started
-
-    - name: Wait for logs
-      pause:
-        seconds: 2

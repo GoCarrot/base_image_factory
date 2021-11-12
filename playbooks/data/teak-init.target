@@ -3,5 +3,5 @@
 
 [Unit]
 Description=Teak base services availability
-Requires=teak-log-collector.service
-After=teak-log-collector.service
+Requires=teak-log-collector.service teak-configurator.service
+After=teak-log-collector.service teak-configurator.service

@@ -1,0 +1,71 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Install Configurator Deployment Packages
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - git
+
+    - name: Install Configurator Runtime Packages
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - ruby
+
+    - name: Create opt dir
+      file:
+        path: /opt
+        group: root
+        owner: root
+        mode: '755'
+        state: directory
+
+    - name: Clone configurator to opt
+      become_flags: '--preserve-env=SSH_AUTH_SOCK'
+      git:
+        dest: /opt/teak-configurator
+        repo: git@github.com:GoCarrot/configurator.git
+        version: "{{ configurator_branch }}"
+
+    - name: Copy systemd configuration
+      copy:
+        src: /opt/teak-configurator/systemd/
+        dest: /etc/systemd/system/
+        remote_src: yes
+        mode: '644'
+        owner: root
+        group: root
+
+    - name: Create Configurator Config Base Dir
+      register: configurator_base
+      file:
+        path: /etc/teak-configurator
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: Create Configurator Log Config
+      template:
+        src: data/00_base.yml.conf
+        dest: "{{ configurator_base.path }}/00_base.yml.conf"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enable Meta Configurator
+      service:
+        name: teak-metaconfigurator
+        enabled: yes
+
+    - name: Enable Configurator
+      service:
+        name: teak-configurator
+        enabled: yes
