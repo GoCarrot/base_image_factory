@@ -30,9 +30,15 @@
     - name: Clone configurator to opt
       become_flags: '--preserve-env=SSH_AUTH_SOCK'
       git:
+        accept_hostkey: yes
         dest: /opt/teak-configurator
         repo: git@github.com:GoCarrot/configurator.git
         version: "{{ configurator_branch }}"
+
+    - name: Install configurator dependencies
+      shell:
+        chdir: /opt/teak-configurator/
+        cmd: BUNDLE_DEPLOYMENT=true BUNDLE_WITHOUT=development:test bundle2.7 install
 
     - name: Copy systemd configuration
       copy:

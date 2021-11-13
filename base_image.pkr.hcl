@@ -242,6 +242,9 @@ EOT
     extra_arguments = [
       "--extra-vars", "build_environment=${var.environment} region=${var.region} build_type=${source.type}"
     ]
+    ansible_env_vars = [
+      "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o StrictHostKeyChecking=no'"
+    ]
   }
 
   # Ansible leaves behind temp directories in the home directory of the user it
