@@ -66,6 +66,14 @@
         group: root
         mode: 0644
 
+    - name: Configure Configurator Logrotate
+      template:
+        src: data/configurator-logrotate.conf
+        dest: /etc/logrotate.d/teak-configurator
+        owner: root
+        group: root
+        mode: 0644
+
     - name: Enable Meta Configurator
       service:
         name: teak-metaconfigurator
