@@ -12,7 +12,7 @@
         - "vars_default.yml"
 
 - import_playbook: systemd.yml
-- import_playbook: reload_systemd.yml
 - import_playbook: fluentbit.yml
 - import_playbook: configurator.yml
+- import_playbook: finalize_systemd.yml
 - import_playbook: cleanup.yml

@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Create teak-init target
+      template:
+        src: data/teak-init.target
+        dest: /lib/systemd/system/teak-init.target
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enable teak-init target
+      shell: systemctl enable teak-init.target
