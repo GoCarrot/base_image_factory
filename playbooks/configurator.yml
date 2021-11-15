@@ -3,6 +3,14 @@
   become: yes
 
   tasks:
+    - name: Create configurator User
+      register: configurator_user
+      user:
+        name: configurator
+        create_home: no
+        shell: /sbin/nologin
+        password: "!"
+
     - name: Install Configurator Deployment Packages
       apt:
         update_cache: yes
@@ -48,6 +56,22 @@
         mode: '644'
         owner: root
         group: root
+
+    - name: Create dropin directory
+      file:
+        path: /etc/systemd/system/teak-configurator.service.d
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: Set configurator user
+      template:
+        src: data/teak-configurator-dropin.conf
+        dest: /etc/systemd/system/teak-configurator.service.d/00_user.conf
+        owner: root
+        group: root
+        mode: 0644
 
     - name: Create Configurator Config Base Dir
       register: configurator_base
