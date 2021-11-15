@@ -3,6 +3,10 @@
   become: yes
 
   tasks:
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+
     - name: Cleanup temp files
       file:
         path: "{{ item }}"

@@ -107,3 +107,9 @@
       service:
         name: teak-configurator
         enabled: yes
+
+    - name: Remove Configurator Deployment Packages
+      apt:
+        state: absent
+        name:
+          - git
