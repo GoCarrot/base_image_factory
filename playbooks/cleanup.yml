@@ -15,7 +15,6 @@
         - /var/lib/cloud
         - /var/lib/chrony
         - /var/lib/teak-log-collector/
-        - /var/log/teak-log-collector/
         - /root/.bash_history
         - /root/.ssh/
         - /root/.ansible/

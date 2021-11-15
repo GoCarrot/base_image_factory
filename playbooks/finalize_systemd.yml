@@ -10,6 +10,3 @@
         owner: root
         group: root
         mode: 0644
-
-    - name: Enable teak-init target
-      shell: systemctl enable teak-init.target
