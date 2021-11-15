@@ -14,8 +14,12 @@
         - /etc/mailname
         - /var/lib/cloud
         - /var/lib/chrony
+        - /var/lib/teak-log-collector/
+        - /var/log/teak-log-collector/
         - /root/.bash_history
-        - /root/.ssh/authorized_keys
+        - /root/.ssh/
+        - /root/.ansible/
+        - /root/.bundle/
         - /etc/machine-id
         - /var/lib/dbus/machine-id
 
