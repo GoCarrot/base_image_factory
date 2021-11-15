@@ -2,5 +2,4 @@
 Description=Slice for Teak support services
 
 [Slice]
-CPUQuota=20%
-MemoryMax=64M
+MemoryMax=96M
