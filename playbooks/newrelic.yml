@@ -1,0 +1,46 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Add NewRelic APT key
+      copy:
+        src: data/newrelic-infra.key
+        dest: /usr/share/keyrings/newrelic-archive-keyring.gpg
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Add NewRelic APT Repo
+      copy:
+        dest: /etc/apt/sources.list.d/packages_new_relic_debian_bullseye.list
+        owner: root
+        group: root
+        mode: 0644
+        content: deb [signed-by=/usr/share/keyrings/newrelic-archive-keyring.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt bullseye main
+
+    - name: Install newrelic-infra
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - libcap2-bin
+          - newrelic-infra
+      environment:
+        NRIA_MODE: PRIVILEGED
+
+    - name: Remove NewRelic APT key
+      file:
+        path: /usr/share/keyrings/newrelic-archive-keyring.gpg
+        state: absent
+
+    - name: Remove NewRelic APT Repo
+      file:
+        path: /etc/apt/sources.list.d/packages_new_relic_debian_bullseye.list
+        state: absent
+
+    - name: Disable newrelic-infra
+      service:
+        name: newrelic-infra
+        enabled: no
