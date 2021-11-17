@@ -47,7 +47,7 @@ workflows:
           var: "region=us-east-1,environment=development"
           except: "vagrant.*"
           context: AWS-Write
-          working_directory: "~/project/language_images/node12"
+          packer_working_directory: "language_images/node12"
           path: "../../"
           requires:
             - setup
