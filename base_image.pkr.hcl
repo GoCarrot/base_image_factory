@@ -218,11 +218,10 @@ build {
       source_ami = local.source_ami[arch.key]
 
       run_tags = {
-        Application = "BaseImageFactory"
+        Application = "ImageFactory"
         Environment = var.environment
         CostCenter  = var.cost_center
         Managed     = "packer"
-        # Same as AMI name. This is some cleverness to give us per build logs.
         Service = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
       }
 
