@@ -58,7 +58,7 @@ variable "source_ami_name_prefix" {
 }
 
 variable "ansible_playbook" {
-  type        = "string"
+  type        = string
   description = "Path to the ansible playbook used to provision the image. May be absolute or relative to the current working directory."
   default     = "playbooks/image.yml"
 }
