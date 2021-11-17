@@ -1,0 +1,6 @@
+---
+- hosts: all
+  become: yes
+
+- import_playbook: node.yml
+- import_playbook: '../../playbooks/cleanup.yml'
