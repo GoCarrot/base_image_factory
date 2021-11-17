@@ -26,6 +26,20 @@
         - /etc/machine-id
         - /var/lib/dbus/machine-id
 
+      # This nonsense is necessary for https://github.com/ansible/ansible/issues/61176
+      # becasue apparently ansible is using python-apt on the server being configured instead
+      # of just running apt-get, and python-apt is broken.
+    - name: Create apt lists directory for ansible
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      with_items:
+        - /var/lib/apt/
+        - /var/lib/apt/lists/
+
     - name: Cleanup log files
       shell: find /var/log -type f | xargs rm
 
