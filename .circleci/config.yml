@@ -48,7 +48,7 @@ workflows:
           except: "vagrant.*"
           context: AWS-Write
           working_directory: "~/project/language_images/node12"
-          path: "../../."
+          path: "../../"
           requires:
             - setup
 
