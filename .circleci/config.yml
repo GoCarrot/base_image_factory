@@ -23,19 +23,19 @@ workflows:
             branches:
               only:
                 - develop
-      # - teak/packer-build:
-      #     version: 1.7.5-dev2
-      #     github_releases_user: AlexSc
-      #     gpg_key_id: EC3A3F7C6C4F9D25
-      #     name: "Generate Base Image (Development)"
-      #     pre-steps:
-      #       - run:
-      #           command: sudo apt-get update && sudo apt-get install -y ansible awscli
-      #     var: "region=us-east-1,environment=development"
-      #     except: "vagrant.*"
-      #     context: AWS-Write
-      #     requires:
-      #       - setup
+      - teak/packer-build:
+          version: 1.7.5-dev2
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
+          name: "Generate Base Image (Development)"
+          pre-steps:
+            - run:
+                command: sudo apt-get update && sudo apt-get install -y ansible awscli
+          var: "region=us-east-1,environment=development"
+          except: "vagrant.*"
+          context: AWS-Write
+          requires:
+            - setup
       - teak/packer-build:
           version: 1.7.5-dev2
           github_releases_user: AlexSc
@@ -49,7 +49,7 @@ workflows:
           context: AWS-Write
           packer_working_directory: "language_images/node12"
           requires:
-            - setup
+            - "Generate Base Image (Development)"
 
   build-production:
     jobs:
