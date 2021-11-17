@@ -57,6 +57,12 @@ variable "source_ami_name_prefix" {
   default     = "packer-root-image"
 }
 
+variable "ansible_playbook" {
+  type        = "string"
+  description = "Path to the ansible playbook used to provision the image. May be absolute or relative to the current working directory."
+  default     = "playbooks/image.yml"
+}
+
 data "amazon-parameterstore" "role_arn" {
   region = var.region
 
@@ -238,7 +244,7 @@ EOT
   }
 
   provisioner "ansible" {
-    playbook_file = "${path.root}/playbooks/image.yml"
+    playbook_file = abspath(var.ansible_playbook)
     extra_arguments = [
       "--extra-vars", "build_environment=${var.environment} region=${var.region} build_type=${source.type}"
     ]
