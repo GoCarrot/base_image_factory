@@ -30,7 +30,7 @@ The Base Image provides teak-init.target, which will not be active until all ser
 ### FluentBit
 
 The Base Image provides [FluentBit](https://fluentbit.io) as teak-log-collector, with the following defaults:
-- systemd, cloudinit, and fluentbit logs are tailed under ancillary.{process}
+- systemd, cloudinit, fluentbit, and configurator logs are tailed under ancillary.{process}
 - ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
 - logs with the service.default tag will be outputted to /teak/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
 - Downstream images may add additional configuration for fluentbit in /etc/teak-log-collector/conf.d/\*.conf.
@@ -51,3 +51,19 @@ bootcmd:
 Be sure to wipe `/var/lib/cloud` after provisioning so that this user-data does not persist to live servers.
 
 It is recommended that FluentBit remain enabled so that the server logs from the build process running be logged to CloudWatch.
+
+### Configurator
+
+The Base Image provides the [configurator](https://github.com/GoCarrot/configurator) as teak-configurator.
+
+teak-configurator is enabled by default in this image.
+
+As the Base Image provides no "metaconfiguration" for the configurator it will not actually do anything.
+
+### newrelic-infra
+
+The Base Image provides [NewRelic Infrastructure Monitoring](https://docs.newrelic.com/docs/infrastructure/install-infrastructure-agent/).
+
+newrelic-infra is disabled by default.
+
+To enable newrelic-infra, add a newrelic-infra.yml configuration file in /etc/newrelic-infra/newrelic-infra.yml with your NewRelic license key.
