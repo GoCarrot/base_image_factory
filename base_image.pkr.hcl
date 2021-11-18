@@ -41,7 +41,6 @@ variable "instance_type" {
 
 variable "ami_prefix" {
   type        = string
-  default     = "packer-base-image"
   description = "Prefix for uniquely generated AMI names"
 }
 
@@ -54,7 +53,6 @@ variable "source_ami_owners" {
 variable "source_ami_name_prefix" {
   type        = string
   description = "The AMI name prefix for AMIs that we use to run the root image builds."
-  default     = "packer-root-image"
 }
 
 variable "ansible_playbook" {
