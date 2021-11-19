@@ -262,8 +262,8 @@ EOT
       # In case we had any temporary packages
       "sudo apt-get autoremove -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false",
       # Taken from debian-server-images
-      "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/* /root/.* /etc/machine-id /var/lib/dbus/machine-id",
-      "sudo /bin/dash -c 'find /var/log -type f | xargs rm'",
+      "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/.bash_history /root/.ssh/ /root/.ansible/ /root/.bundle/ /etc/machine-id /var/lib/dbus/machine-id",
+      "sudo /bin/dash -c 'find /var/log -type f | tee /dev/tty | xargs rm'",
       "sudo shred --remove /etc/ssh/ssh_host_*",
       "sudo /bin/dash -c 'if [ ! -L /etc/resolv.conf ]; then rm /etc/resolv.conf; fi'",
       "sudo touch /etc/machine-id",
