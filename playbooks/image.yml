@@ -16,4 +16,3 @@
 - import_playbook: fluentbit.yml
 - import_playbook: configurator.yml
 - import_playbook: finalize_systemd.yml
-- import_playbook: cleanup.yml
