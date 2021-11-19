@@ -61,6 +61,12 @@ variable "ansible_playbook" {
   default     = "playbooks/image.yml"
 }
 
+variable "volume_size" {
+  type        = number
+  description = "Size of the root volume in GB"
+  default     = 2
+}
+
 data "amazon-parameterstore" "role_arn" {
   region = var.region
 
@@ -165,7 +171,7 @@ source "amazon-ebs" "debian" {
     # gp3 volumes in order to minimize the time to copy the built image to
     # our fresh volume.
     device_name = "/dev/xvda"
-    volume_size = 2
+    volume_size = var.volume_size
     iops        = 3000
     throughput  = 300
 
@@ -176,7 +182,7 @@ source "amazon-ebs" "debian" {
   ami_block_device_mappings {
     volume_type = "gp3"
     device_name = "/dev/xvda"
-    volume_size = 2
+    volume_size = var.volume_size
     iops        = 3000
     throughput  = 125
 
