@@ -10,6 +10,7 @@
         create_home: no
         shell: /sbin/nologin
         password: "!"
+        system: yes
 
     - name: Install Configurator Deployment Packages
       apt:
