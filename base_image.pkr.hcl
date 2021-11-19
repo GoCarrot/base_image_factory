@@ -262,12 +262,12 @@ EOT
       # In case we had any temporary packages
       "sudo apt-get autoremove",
       # Taken from debian-server-images
-      "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/* /root/.* /etc/machine-id /var/lib/dbus/machine-id"
+      "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/* /root/.* /etc/machine-id /var/lib/dbus/machine-id",
       "sudo find /var/log -type f | xargs rm",
-      "sudo shred --remove /etc/ssh/ssh_host-*"
-      "sudo if { ! -L /etc/resolve.conf ]; then rm /etc/resolve.conf; fi"
-      "sudo touch /etc/machine-id"
-       # Ansible leaves behind temp directories in the home directory of the user it
+      "sudo shred --remove /etc/ssh/ssh_host-*",
+      "sudo if { ! -L /etc/resolve.conf ]; then rm /etc/resolve.conf; fi",
+      "sudo touch /etc/machine-id",
+      # Ansible leaves behind temp directories in the home directory of the user it
       # logged in as. We always create that user with cloud-init, so nuke it and let
       # cloud-init recreate everything on boot.
       "export CURRENT_USER=`whoami`",
