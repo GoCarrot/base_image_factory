@@ -215,9 +215,9 @@ build {
     labels   = ["amazon-ebs.debian"]
 
     content {
-      name             = "debian_${arch.key}"
-      ami_name         = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
-      instance_type    = var.instance_type[arch.key]
+      name          = "debian_${arch.key}"
+      ami_name      = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+      instance_type = var.instance_type[arch.key]
 
       source_ami = local.source_ami[arch.key]
 
@@ -226,7 +226,7 @@ build {
         Environment = var.environment
         CostCenter  = var.cost_center
         Managed     = "packer"
-        Service = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+        Service     = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
       }
 
       user_data = <<-EOT
