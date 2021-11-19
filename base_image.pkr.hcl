@@ -265,7 +265,7 @@ EOT
       "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/* /root/.* /etc/machine-id /var/lib/dbus/machine-id",
       "sudo /bin/dash -c 'find /var/log -type f | xargs rm'",
       "sudo shred --remove /etc/ssh/ssh_host_*",
-      "sudo /bin/dash -c 'if [ ! -L /etc/resolve.conf ]; then rm /etc/resolve.conf; fi'",
+      "sudo /bin/dash -c 'if [ ! -L /etc/resolv.conf ]; then rm /etc/resolv.conf; fi'",
       "sudo touch /etc/machine-id",
       # Ansible leaves behind temp directories in the home directory of the user it
       # logged in as. We always create that user with cloud-init, so nuke it and let
