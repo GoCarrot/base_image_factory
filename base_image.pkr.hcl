@@ -260,7 +260,7 @@ EOT
   provisioner "shell" {
     inline = [
       # In case we had any temporary packages
-      "sudo apt-get autoremove",
+      "sudo apt-get autoremove -y",
       # Taken from debian-server-images
       "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/* /root/.* /etc/machine-id /var/lib/dbus/machine-id",
       "sudo find /var/log -type f | xargs rm",
