@@ -111,5 +111,6 @@
     - name: Remove Configurator Deployment Packages
       apt:
         state: absent
+        purge: yes
         name:
           - git
