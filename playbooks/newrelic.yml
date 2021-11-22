@@ -44,3 +44,11 @@
       service:
         name: newrelic-infra
         enabled: no
+
+    - name: Replace nri service file
+      template:
+        src: data/newrelic-infra.service
+        dest: /etc/systemd/system/newrelic-infra.service
+        owner: root
+        group: root
+        mode: 0644
