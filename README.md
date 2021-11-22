@@ -19,7 +19,7 @@ When this image provides the option to include additional configuration files in
 The Base Image configures systemd to provide a TEAK_SERVICE environment variable to all systemd services with names starting with `teak-`. By default TEAK_SERVICE will be set to the name of the base image AMI. In non-AMI environments, TEAK_SERVICE will be set to "unknown". To modify this create a configuration file in /etc/systemd/system/teak-.service.d/ with the contents
 
 ```
-[Unit]
+[Service]
 Environment="TEAK_SERVICE={{service_name}}"
 ```
 
