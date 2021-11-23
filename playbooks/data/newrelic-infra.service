@@ -3,18 +3,20 @@ Description=New Relic Infrastructure Agent
 After=dbus.service syslog.target network.target
 
 [Service]
+PrivateTmp=yes
+StateDirectory=newrelic-infra
 User=nri-agent
 Group=nri-agent
 RuntimeDirectory=newrelic-infra
 Type=simple
-ExecStart=/usr/bin/newrelic-infra-service -c $CREDENTIALS_DIRECTORY/newrelic-infra.yml
+ExecStart=/usr/bin/newrelic-infra-service -config ${CREDENTIALS_DIRECTORY}/newrelic-infra.yml
 
 MemoryMax=1G
 Restart=always
 RestartSec=20
 StartLimitInterval=0
 StartLimitBurst=5
-PIDFile=/var/run/newrelic-infra/newrelic-infra.pid
+PIDFile=/run/newrelic-infra/newrelic-infra.pid
 
 [Install]
 WantedBy=multi-user.target
