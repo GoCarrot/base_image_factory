@@ -1,0 +1,68 @@
+# Copyright 2021 Teak.io, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Add NewRelic APT key
+      copy:
+        src: data/newrelic-infra.key
+        dest: /usr/share/keyrings/newrelic-archive-keyring.gpg
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Add NewRelic APT Repo
+      copy:
+        dest: /etc/apt/sources.list.d/packages_new_relic_debian_bullseye.list
+        owner: root
+        group: root
+        mode: 0644
+        content: deb [signed-by=/usr/share/keyrings/newrelic-archive-keyring.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt bullseye main
+
+    - name: Install newrelic-infra
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - libcap2-bin
+          - newrelic-infra
+      environment:
+        NRIA_MODE: PRIVILEGED
+
+    - name: Remove NewRelic APT key
+      file:
+        path: /usr/share/keyrings/newrelic-archive-keyring.gpg
+        state: absent
+
+    - name: Remove NewRelic APT Repo
+      file:
+        path: /etc/apt/sources.list.d/packages_new_relic_debian_bullseye.list
+        state: absent
+
+    - name: Disable newrelic-infra
+      service:
+        name: newrelic-infra
+        enabled: no
+
+    - name: Replace nri service file
+      template:
+        src: data/newrelic-infra.service
+        dest: /etc/systemd/system/newrelic-infra.service
+        owner: root
+        group: root
+        mode: 0644

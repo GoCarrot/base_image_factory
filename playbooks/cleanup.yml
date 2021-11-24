@@ -1,0 +1,67 @@
+# Copyright 2021 Teak.io, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+
+    - name: Cleanup temp files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /var/cache/
+        - /var/lib/apt/
+        - /var/log/apt/
+        - /etc/mailname
+        - /var/lib/cloud
+        - /var/lib/chrony
+        - /var/lib/teak-log-collector/
+        - /root/.bash_history
+        - /root/.ssh/
+        - /root/.ansible/
+        - /root/.bundle/
+        - /etc/machine-id
+        - /var/lib/dbus/machine-id
+
+      # This nonsense is necessary for https://github.com/ansible/ansible/issues/61176
+      # becasue apparently ansible is using python-apt on the server being configured instead
+      # of just running apt-get, and python-apt is broken.
+    - name: Create apt lists directory for ansible
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      with_items:
+        - /var/lib/apt/
+        - /var/lib/apt/lists/
+
+    - name: Cleanup log files
+      shell: find /var/log -type f | xargs rm
+
+    - name: Shred hostkeys
+      shell: shred --remove /etc/ssh/ssh_host_*
+
+    - name: Remove resolv.conf
+      shell: if [ ! -L /etc/resolv.conf ]; then rm /etc/resolv.conf; fi
+
+    - name: Touch machine-id
+      shell: touch /etc/machine-id

@@ -1,0 +1,10 @@
+base_image_factory
+Copyright 2021 Teak.io, Inc.
+
+Portions Copyright 2020 New Relic Corporation, licensed under Apache 2.0
+playbooks/data/newrelic-infra.service
+
+Portions Copyright 2015-2018 Treasure Data Inc. 2019-2021 The Fluent Bit Authors
+playbooks/data/td-agent-bit.conf
+playbooks/data/parsers.conf
+playbooks/data/plugins.conf

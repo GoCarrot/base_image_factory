@@ -1,0 +1,129 @@
+# Copyright 2021 Teak.io, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Create configurator User
+      register: configurator_user
+      user:
+        name: configurator
+        create_home: no
+        shell: /sbin/nologin
+        password: "!"
+        system: yes
+
+    - name: Install Configurator Deployment Packages
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - git
+
+    - name: Install Configurator Runtime Packages
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - ruby
+
+    - name: Create opt dir
+      file:
+        path: /opt
+        group: root
+        owner: root
+        mode: '755'
+        state: directory
+
+    - name: Clone configurator to opt
+      git:
+        dest: /opt/teak-configurator
+        repo: https://github.com/GoCarrot/configurator.git
+        version: "{{ configurator_branch }}"
+
+    - name: Install configurator dependencies
+      shell:
+        chdir: /opt/teak-configurator/
+        cmd: BUNDLE_DEPLOYMENT=true BUNDLE_WITHOUT=development:test bundle2.7 install
+
+    - name: Copy systemd configuration
+      copy:
+        src: /opt/teak-configurator/systemd/
+        dest: /etc/systemd/system/
+        remote_src: yes
+        mode: '644'
+        owner: root
+        group: root
+
+    - name: Create dropin directory
+      file:
+        path: /etc/systemd/system/teak-configurator.service.d
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: Set configurator user
+      template:
+        src: data/teak-configurator-dropin.conf
+        dest: /etc/systemd/system/teak-configurator.service.d/00_user.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Create Configurator Config Base Dir
+      register: configurator_base
+      file:
+        path: /etc/teak-configurator
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: Create Configurator Log Config
+      template:
+        src: data/00_base.yml.conf
+        dest: "{{ configurator_base.path }}/00_base.yml.conf"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Configure Configurator Logrotate
+      template:
+        src: data/configurator-logrotate.conf
+        dest: /etc/logrotate.d/teak-configurator
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enable Meta Configurator
+      service:
+        name: teak-metaconfigurator
+        enabled: yes
+
+    - name: Enable Configurator
+      service:
+        name: teak-configurator
+        enabled: yes
+
+    - name: Remove Configurator Deployment Packages
+      apt:
+        state: absent
+        purge: yes
+        name:
+          - git
