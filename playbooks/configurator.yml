@@ -51,11 +51,9 @@
         state: directory
 
     - name: Clone configurator to opt
-      become_flags: '--preserve-env=SSH_AUTH_SOCK'
       git:
-        accept_hostkey: yes
         dest: /opt/teak-configurator
-        repo: git@github.com:GoCarrot/configurator.git
+        repo: https://github.com/GoCarrot/configurator.git
         version: "{{ configurator_branch }}"
 
     - name: Install configurator dependencies
