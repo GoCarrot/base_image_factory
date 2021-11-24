@@ -1,3 +1,8 @@
+# Copyright 2020 New Relic Corporation. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Modified by Teak.io, Inc.
+
 [Unit]
 Description=New Relic Infrastructure Agent
 After=dbus.service syslog.target network.target
