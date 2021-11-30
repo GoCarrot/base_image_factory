@@ -50,3 +50,16 @@
       with_items:
         - apt-daily
         - apt-daily-upgrade
+
+    - name: Reload systemd after cloud-init
+      template:
+        src: data/systemd-reload-after-cloud-init.service
+        dest: /lib/ssytemd/system/systemd-reload-after-cloud-init.service
+        owenr: root
+        group: root
+        mode: 0644
+
+    - name: Enable systemd reload after cloud-init
+      service:
+        name: systemd-reload-after-cloud-init
+        enabled: yes
