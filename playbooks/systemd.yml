@@ -54,8 +54,8 @@
     - name: Reload systemd after cloud-init
       template:
         src: data/systemd-reload-after-cloud-init.service
-        dest: /lib/ssytemd/system/systemd-reload-after-cloud-init.service
-        owenr: root
+        dest: /lib/sytemd/system/systemd-reload-after-cloud-init.service
+        owner: root
         group: root
         mode: 0644
 
