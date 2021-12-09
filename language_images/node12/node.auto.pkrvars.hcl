@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ami_prefix             = "packer-node12"
-source_ami_name_prefix = "packer-base-image"
+ami_prefix             = "node12"
+source_ami_name_prefix = "base"

@@ -44,6 +44,12 @@ variable "cost_center" {
   description = "Value to be assigned to the CostCenter tag on all temporary resources and created AMIs"
 }
 
+variable "application" {
+  type        = string
+  default     = "None"
+  description = "Value to be assigned to the Application tag on created AMIs"
+}
+
 variable "instance_type" {
   type = map(string)
   default = {
@@ -113,7 +119,7 @@ data "amazon-ami" "base_x86_64_debian_ami" {
 
   filters = {
     virtualization-type = "hvm"
-    name                = "${var.environment}-${var.source_ami_name_prefix}*"
+    name                = "${var.environment}_${var.source_ami_name_prefix}*"
     architecture        = "x86_64"
   }
   region      = var.region
@@ -128,7 +134,7 @@ data "amazon-ami" "base_arm64_debian_ami" {
 
   filters = {
     virtualization-type = "hvm"
-    name                = "${var.environment}-${var.source_ami_name_prefix}*"
+    name                = "${var.environment}_${var.source_ami_name_prefix}*"
     architecture        = "arm64"
   }
   region      = var.region
@@ -209,7 +215,7 @@ source "amazon-ebs" "debian" {
   sriov_support           = true
 
   tags = {
-    Application = "None"
+    Application = var.application
     Environment = var.environment
     CostCenter  = var.cost_center
   }
@@ -230,7 +236,7 @@ build {
 
     content {
       name          = "debian_${arch.key}"
-      ami_name      = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+      ami_name      = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
       instance_type = var.instance_type[arch.key]
 
       source_ami = local.source_ami[arch.key]
@@ -240,7 +246,7 @@ build {
         Environment = var.environment
         CostCenter  = var.cost_center
         Managed     = "packer"
-        Service     = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+        Service     = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
       }
 
       user_data = <<-EOT
@@ -248,7 +254,7 @@ build {
       write_files:
         - content: |
             [Service]
-            Environment="TEAK_SERVICE=${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+            Environment="TEAK_SERVICE=${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
           path: /run/systemd/system/teak-.service.d/01_build_environment.conf
           owner: root:root
           permissions: '0644'
