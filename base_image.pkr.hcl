@@ -166,6 +166,16 @@ source "amazon-ebs" "debian" {
     random = true
   }
 
+  dynamic "security_group_filter" {
+    for_each = [for s in [var.security_group_name] : s if s != ""]
+
+    content {
+      filters = {
+        "group-name" = var.security_group_name
+      }
+    }
+  }
+
   run_volume_tags = {
     Managed     = "packer"
     Environment = var.environment
