@@ -76,7 +76,7 @@ workflows:
           version: 1.7.5-dev2
           github_releases_user: AlexSc
           gpg_key_id: EC3A3F7C6C4F9D25
-          name: "Generate Images (Production)"
+          name: "Generate Base Image (Production)"
           pre-steps:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
