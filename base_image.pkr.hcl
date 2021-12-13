@@ -87,6 +87,12 @@ variable "volume_size" {
   default     = 2
 }
 
+variable "security_group_name" {
+  type        = string
+  description = "The name of the security group to attach to builder instances. Leave blank to use Packer generated security groups."
+  default     = ""
+}
+
 data "amazon-parameterstore" "role_arn" {
   region = var.region
 
