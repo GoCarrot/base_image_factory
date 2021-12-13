@@ -15,7 +15,7 @@
 version: 2.1
 
 orbs:
-  teak: teak/sdk-utils@0.1
+  teak: teak/sdk-utils@0.2
 
 jobs:
   setup:
@@ -58,7 +58,7 @@ workflows:
           pre-steps:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
-          var: "region=us-east-1,environment=development"
+          var: "region=us-east-1,environment=development,security_group_name=CircleCI-SSHAccess"
           except: "vagrant.*"
           context: AWS-Write
           packer_working_directory: "language_images/node12"
@@ -80,7 +80,7 @@ workflows:
           pre-steps:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
-          var: "region=us-east-1,environment=production"
+          var: "region=us-east-1,environment=production,security_group_name=CircleCI-SSHAccess"
           except: "vagrant.*"
           context: AWS-Write
           requires:
