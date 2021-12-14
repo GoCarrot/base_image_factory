@@ -45,6 +45,10 @@ workflows:
           pre-steps:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
+            - run:
+                command: |
+                  ip=$(curl -s https://api.ipify.org)
+                  echo "My public IP address is: $ip"
           post-steps:
             - store_artifacts:
                 path: "manifests/"
@@ -61,6 +65,10 @@ workflows:
           pre-steps:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
+            - run:
+                command: |
+                  ip=$(curl -s https://api.ipify.org)
+                  echo "My public IP address is: $ip"
           post-steps:
             - store_artifacts:
                 path: "language_images/node12/manifests/"
