@@ -304,24 +304,27 @@ EOT
     ]
   }
 
+  # Remove any temporary build-dep style packages and generate a package manifest.
   provisioner "shell" {
     inline = [
+      # In case we had any temporary packages
+      "sudo apt-get autoremove -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
       "sudo dpkg-query --show > /tmp/package_manifest.txt"
     ]
   }
 
+  # Download the package manifest locally.
   provisioner "file" {
     source      = "/tmp/package_manifest.txt"
     destination = "./package_manifest.txt"
     direction   = "download"
   }
 
+  # Clean up the server so we can pretend it's never been booted before.
   provisioner "shell" {
     inline = [
       # Go ahead and nuke our mainfest
       "sudo rm -fr /tmp/package_manifest.txt",
-      # In case we had any temporary packages
-      "sudo apt-get autoremove -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
       # Taken from debian-server-images
       "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/.bash_history /root/.ssh/ /root/.ansible/ /root/.bundle/ /etc/machine-id /var/lib/dbus/machine-id",
       # Ensure we stop things that'll log before we clear logs
