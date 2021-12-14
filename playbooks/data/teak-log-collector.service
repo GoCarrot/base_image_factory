@@ -48,6 +48,7 @@ RestrictAddressFamilies=~AF_NETLINK AF_PACKET
 RestrictNamespaces=yes
 
 Environment="HOSTNAME=%H"
+Environment="LOG_LEVEL=info"
 
 User={{ fluentbit_user.name }}
 Type=simple
