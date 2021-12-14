@@ -316,7 +316,7 @@ EOT
   # Download the package manifest locally.
   provisioner "file" {
     source      = "/tmp/package_manifest.txt"
-    destination = "./package_manifest.txt"
+    destination = "manifests/${build.name}.txt"
     direction   = "download"
   }
 
