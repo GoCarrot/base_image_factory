@@ -151,8 +151,8 @@ data "amazon-ami" "base_arm64_debian_ami" {
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
   source_ami = {
-    x86_64 = data.amazon-ami.base_x86_64_debian_ami.id
-    arm64  = data.amazon-ami.base_arm64_debian_ami.id
+    x86_64 = data.amazon-ami.base_x86_64_debian_ami
+    arm64  = data.amazon-ami.base_arm64_debian_ami
   }
   role_arn = data.amazon-parameterstore.role_arn.value
   arch_map = { x86_64 = "amd64", arm64 = "arm64" }
@@ -229,12 +229,6 @@ source "amazon-ebs" "debian" {
   ami_users               = split(",", data.amazon-parameterstore.ami_users.value)
   ena_support             = true
   sriov_support           = true
-
-  tags = {
-    Application = var.application
-    Environment = var.environment
-    CostCenter  = var.cost_center
-  }
 }
 
 source "vagrant" "debian" {
@@ -255,7 +249,7 @@ build {
       ami_name      = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
       instance_type = var.instance_type[arch.key]
 
-      source_ami = local.source_ami[arch.key]
+      source_ami = local.source_ami[arch.key].id
 
       run_tags = {
         Application = "ImageFactory"
@@ -263,6 +257,14 @@ build {
         CostCenter  = var.cost_center
         Managed     = "packer"
         Service     = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
+      }
+
+      tags = {
+        Application = var.application
+        Environment = var.environment
+        CostCenter  = var.cost_center
+        SourceAmi   = local.source_ami[arch.key].name
+        SourceAmiId = local.source_ami[arch.key].id
       }
 
       user_data = <<-EOT
