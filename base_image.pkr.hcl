@@ -96,7 +96,7 @@ variable "security_group_name" {
 variable "commit_id" {
   type        = string
   description = "The full git sha of the commit that the image is being built from."
-  default     = coalesce(env("CIRCLE_SHA1"), "in-dev")
+  default     = env("CIRCLE_SHA1")
 }
 
 data "amazon-parameterstore" "role_arn" {
@@ -162,6 +162,8 @@ locals {
   }
   role_arn = data.amazon-parameterstore.role_arn.value
   arch_map = { x86_64 = "amd64", arm64 = "arm64" }
+
+  commit_id = coalesce(var.commit_id, "in-dev")
 }
 
 source "amazon-ebs" "debian" {
@@ -271,7 +273,7 @@ build {
         CostCenter  = var.cost_center
         SourceAmi   = local.source_ami[arch.key].name
         SourceAmiId = local.source_ami[arch.key].id
-        BuildCommit = var.commit_id
+        BuildCommit = local.commit_id
       }
 
       user_data = <<-EOT
