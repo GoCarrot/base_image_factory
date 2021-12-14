@@ -93,6 +93,12 @@ variable "security_group_name" {
   default     = ""
 }
 
+variable "commit_id" {
+  type        = string
+  description = "The full git sha of the commit that the image is being built from."
+  default     = coalesce(env("CIRCLE_SHA1"), "in-dev")
+}
+
 data "amazon-parameterstore" "role_arn" {
   region = var.region
 
@@ -265,6 +271,7 @@ build {
         CostCenter  = var.cost_center
         SourceAmi   = local.source_ami[arch.key].name
         SourceAmiId = local.source_ami[arch.key].id
+        BuildCommit = var.commit_id
       }
 
       user_data = <<-EOT
