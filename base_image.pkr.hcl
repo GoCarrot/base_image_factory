@@ -155,7 +155,7 @@ data "amazon-ami" "base_arm64_debian_ami" {
 }
 
 locals {
-  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+  timestamp = regex_replace(timestamp(), "[- :]", "")
   source_ami = {
     x86_64 = data.amazon-ami.base_x86_64_debian_ami
     arm64  = data.amazon-ami.base_arm64_debian_ami
