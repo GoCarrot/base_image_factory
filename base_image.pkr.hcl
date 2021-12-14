@@ -304,6 +304,20 @@ EOT
 
   provisioner "shell" {
     inline = [
+      "sudo dpkg-query --show > /tmp/package_manifest.txt"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "/tmp/package_manifest.txt"
+    destination = "./package_manifest.txt"
+    direction   = "download"
+  }
+
+  provisioner "shell" {
+    inline = [
+      # Go ahead and nuke our mainfest
+      "sudo rm -fr /tmp/package_manifest.txt",
       # In case we had any temporary packages
       "sudo apt-get autoremove -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
       # Taken from debian-server-images

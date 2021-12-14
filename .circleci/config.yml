@@ -58,6 +58,10 @@ workflows:
           pre-steps:
             - run:
                 command: sudo apt-get update && sudo apt-get install -y ansible awscli
+          post-steps:
+            - store_artifacts:
+                path: "package_manifest.txt"
+                destination: "package_manifest.txt"
           var: "region=us-east-1,environment=development,security_group_name=CircleCI-SSHAccess"
           except: "vagrant.*"
           context: AWS-Write
