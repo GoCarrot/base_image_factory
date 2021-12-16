@@ -49,10 +49,11 @@ RestrictNamespaces=yes
 
 Environment="GEM_HOME={{ fluentd_install.path }}"
 Environment="LOG_LEVEL=info"
+Environment="MALLOC_ARENA_MAX=2"
 
 User={{ fluentd_user.name }}
 Type=simple
-ExecStart={{ fluentd_install.path }}/bin/fluentd -o "${LOGS_DIRECTORY}/self.log" -c {{ fluentd_config.dest }}
+ExecStart={{ fluentd_install.path }}/bin/fluentd -o "${LOGS_DIRECTORY}/self.log" -c {{ fluentd_config.dest }} --no-supervisor
 Restart=always
 
 [Install]
