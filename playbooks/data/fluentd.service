@@ -52,7 +52,7 @@ Environment="LOG_LEVEL=info"
 
 User={{ fluentd_user.name }}
 Type=simple
-ExecStart={{ fluentd_install.path }}/bin/fluentd -c {{ fluentd_config.dest }} -o $LOGS_DIRECTORY/self.log
+ExecStart={{ fluentd_install.path }}/bin/fluentd -o "${LOGS_DIRECTORY}/self.log" -c {{ fluentd_config.dest }}
 Restart=always
 
 [Install]
