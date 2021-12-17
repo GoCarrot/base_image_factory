@@ -16,4 +16,4 @@
 Description=Slice for Teak support services
 
 [Slice]
-MemoryMax=256M
+MemoryMax=1G
