@@ -63,3 +63,21 @@
       service:
         name: systemd-reload-after-cloud-init
         enabled: yes
+
+    - name: Create logrotate timer dropin dir
+      register: systemd_logrotate_dropin
+      file:
+        path: /etc/systemd/system/logrotate.timer.d/
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: Update logrotate timer configuration
+      register: systemd_logrotate_dropin
+      template:
+        src: data/update_logrotate.timer
+        dest: "{{ systemd_logrotate_dropin.path }}/00_run_hourly.conf"
+        owner: root
+        group: root
+        mode: 0755
