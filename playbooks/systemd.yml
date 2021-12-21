@@ -20,7 +20,7 @@
     - name: Create Teak services conf dir
       register: systemd_teak_dropin
       file:
-        path: /lib/systemd/system/teak-.service.d/
+        path: /etc/systemd/system/teak-.service.d/
         owner: root
         group: root
         mode: 0755
@@ -37,7 +37,7 @@
     - name: Create teak slices
       template:
         src: data/teak-services.slice
-        dest: /lib/systemd/system/teak-services.slice
+        dest: /etc/systemd/system/teak-services.slice
         owner: root
         group: root
         mode: 0644
@@ -54,7 +54,7 @@
     - name: Reload systemd after cloud-init
       template:
         src: data/systemd-reload-after-cloud-init.service
-        dest: /lib/systemd/system/systemd-reload-after-cloud-init.service
+        dest: /etc/systemd/system/systemd-reload-after-cloud-init.service
         owner: root
         group: root
         mode: 0644
