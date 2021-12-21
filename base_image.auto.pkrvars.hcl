@@ -13,4 +13,4 @@
 # limitations under the License.
 
 ami_prefix             = "base"
-source_ami_name_prefix = "packer-root-image"
+source_ami_name_prefix = "root"
