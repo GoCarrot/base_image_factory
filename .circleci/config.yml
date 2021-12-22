@@ -44,7 +44,7 @@ workflows:
           name: "Generate Base Image (Development)"
           pre-steps:
             - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible awscli
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
             - run:
                 command: |
                   ip=$(curl -s https://api.ipify.org)
@@ -64,7 +64,7 @@ workflows:
           name: "Generate Node Image (Development)"
           pre-steps:
             - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible awscli
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
             - run:
                 command: |
                   ip=$(curl -s https://api.ipify.org)
@@ -93,7 +93,7 @@ workflows:
           name: "Generate Base Image (Production)"
           pre-steps:
             - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible awscli
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
             - run:
                 command: |
                   ip=$(curl -s https://api.ipify.org)
@@ -113,7 +113,7 @@ workflows:
           name: "Generate Node Image (Production)"
           pre-steps:
             - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible awscli
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
             - run:
                 command: |
                   ip=$(curl -s https://api.ipify.org)
