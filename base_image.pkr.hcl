@@ -302,7 +302,7 @@ EOT
   provisioner "shell" {
     inline = [
       # In case we had any temporary packages
-      "sudo apt-get autoremove -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
+      "sudo apt-get autoremove --purge -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
       "sudo dpkg-query --show > /tmp/package_manifest.txt"
     ]
   }
