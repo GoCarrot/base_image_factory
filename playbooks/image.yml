@@ -27,6 +27,6 @@
 
 - import_playbook: systemd.yml
 - import_playbook: newrelic.yml
-- import_playbook: fluentbit.yml
+- import_playbook: fluentd.yml
 - import_playbook: configurator.yml
 - import_playbook: finalize_systemd.yml

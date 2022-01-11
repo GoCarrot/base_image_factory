@@ -20,7 +20,7 @@
     - name: Create Teak services conf dir
       register: systemd_teak_dropin
       file:
-        path: /lib/systemd/system/teak-.service.d/
+        path: /etc/systemd/system/teak-.service.d/
         owner: root
         group: root
         mode: 0755
@@ -37,7 +37,7 @@
     - name: Create teak slices
       template:
         src: data/teak-services.slice
-        dest: /lib/systemd/system/teak-services.slice
+        dest: /etc/systemd/system/teak-services.slice
         owner: root
         group: root
         mode: 0644
@@ -50,3 +50,34 @@
       with_items:
         - apt-daily
         - apt-daily-upgrade
+
+    - name: Reload systemd after cloud-init
+      template:
+        src: data/systemd-reload-after-cloud-init.service
+        dest: /etc/systemd/system/systemd-reload-after-cloud-init.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enable systemd reload after cloud-init
+      service:
+        name: systemd-reload-after-cloud-init
+        enabled: yes
+
+    - name: Create logrotate timer dropin dir
+      register: systemd_logrotate_dropin
+      file:
+        path: /etc/systemd/system/logrotate.timer.d/
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+
+    - name: Update logrotate timer configuration
+      register: systemd_logrotate_dropin
+      template:
+        src: data/update_logrotate.timer
+        dest: "{{ systemd_logrotate_dropin.path }}/00_run_hourly.conf"
+        owner: root
+        group: root
+        mode: 0755

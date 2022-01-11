@@ -44,6 +44,12 @@ variable "cost_center" {
   description = "Value to be assigned to the CostCenter tag on all temporary resources and created AMIs"
 }
 
+variable "application" {
+  type        = string
+  default     = "None"
+  description = "Value to be assigned to the Application tag on created AMIs"
+}
+
 variable "instance_type" {
   type = map(string)
   default = {
@@ -81,28 +87,34 @@ variable "volume_size" {
   default     = 2
 }
 
+variable "security_group_name" {
+  type        = string
+  description = "The name of the security group to attach to builder instances. Leave blank to use Packer generated security groups."
+  default     = ""
+}
+
+variable "commit_id" {
+  type        = string
+  description = "The full git sha of the commit that the image is being built from."
+  default     = env("CIRCLE_SHA1")
+}
+
 data "amazon-parameterstore" "role_arn" {
   region = var.region
 
-  name = "/teak/${var.environment}/ci-cd/packer_role_arn"
+  name = "/teak/${var.environment}/ci-cd/roles/packer"
 }
 
 data "amazon-parameterstore" "instance_profile" {
   region = var.region
 
-  name = "/teak/${var.environment}/ci-cd/instance_profile"
-}
-
-data "amazon-parameterstore" "local_vm_bucket" {
-  region = var.region
-
-  name = "/teak/${var.environment}/ci-cd/vm_bucket_id"
+  name = "/teak/${var.environment}/ci-cd/config/ServerImages/instance_profile"
 }
 
 data "amazon-parameterstore" "ami_users" {
   region = var.region
 
-  name = "/teak/${var.environment}/ci-cd/ami_consumers"
+  name = "/teak/${var.environment}/ci-cd/config/ServerImages/ami_consumers"
 }
 
 # Pull the latest root image
@@ -113,7 +125,7 @@ data "amazon-ami" "base_x86_64_debian_ami" {
 
   filters = {
     virtualization-type = "hvm"
-    name                = "${var.environment}-${var.source_ami_name_prefix}*"
+    name                = "${var.environment}_${var.source_ami_name_prefix}*"
     architecture        = "x86_64"
   }
   region      = var.region
@@ -128,7 +140,7 @@ data "amazon-ami" "base_arm64_debian_ami" {
 
   filters = {
     virtualization-type = "hvm"
-    name                = "${var.environment}-${var.source_ami_name_prefix}*"
+    name                = "${var.environment}_${var.source_ami_name_prefix}*"
     architecture        = "arm64"
   }
   region      = var.region
@@ -137,13 +149,15 @@ data "amazon-ami" "base_arm64_debian_ami" {
 }
 
 locals {
-  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+  timestamp = regex_replace(timestamp(), "[- :]", "")
   source_ami = {
-    x86_64 = data.amazon-ami.base_x86_64_debian_ami.id
-    arm64  = data.amazon-ami.base_arm64_debian_ami.id
+    x86_64 = data.amazon-ami.base_x86_64_debian_ami
+    arm64  = data.amazon-ami.base_arm64_debian_ami
   }
   role_arn = data.amazon-parameterstore.role_arn.value
   arch_map = { x86_64 = "amd64", arm64 = "arm64" }
+
+  commit_id = coalesce(var.commit_id, "in-dev")
 }
 
 source "amazon-ebs" "debian" {
@@ -158,6 +172,16 @@ source "amazon-ebs" "debian" {
     }
 
     random = true
+  }
+
+  dynamic "security_group_filter" {
+    for_each = [for s in [var.security_group_name] : s if s != ""]
+
+    content {
+      filters = {
+        "group-name" = var.security_group_name
+      }
+    }
   }
 
   run_volume_tags = {
@@ -207,12 +231,6 @@ source "amazon-ebs" "debian" {
   ami_users               = split(",", data.amazon-parameterstore.ami_users.value)
   ena_support             = true
   sriov_support           = true
-
-  tags = {
-    Application = "None"
-    Environment = var.environment
-    CostCenter  = var.cost_center
-  }
 }
 
 source "vagrant" "debian" {
@@ -230,17 +248,26 @@ build {
 
     content {
       name          = "debian_${arch.key}"
-      ami_name      = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+      ami_name      = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
       instance_type = var.instance_type[arch.key]
 
-      source_ami = local.source_ami[arch.key]
+      source_ami = local.source_ami[arch.key].id
 
       run_tags = {
         Application = "ImageFactory"
         Environment = var.environment
         CostCenter  = var.cost_center
         Managed     = "packer"
-        Service     = "${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+        Service     = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
+      }
+
+      tags = {
+        Application = var.application
+        Environment = var.environment
+        CostCenter  = var.cost_center
+        SourceAmi   = local.source_ami[arch.key].name
+        SourceAmiId = local.source_ami[arch.key].id
+        BuildCommit = local.commit_id
       }
 
       user_data = <<-EOT
@@ -248,7 +275,7 @@ build {
       write_files:
         - content: |
             [Service]
-            Environment="TEAK_SERVICE=${var.environment}-${var.ami_prefix}-${arch.key}-${local.timestamp}"
+            Environment="TEAK_SERVICE=${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
           path: /run/systemd/system/teak-.service.d/01_build_environment.conf
           owner: root:root
           permissions: '0644'
@@ -271,10 +298,27 @@ EOT
     ]
   }
 
+  # Remove any temporary build-dep style packages and generate a package manifest.
   provisioner "shell" {
     inline = [
       # In case we had any temporary packages
-      "sudo apt-get autoremove -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
+      "sudo apt-get autoremove --purge -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
+      "sudo dpkg-query --show > /tmp/package_manifest.txt"
+    ]
+  }
+
+  # Download the package manifest locally.
+  provisioner "file" {
+    source      = "/tmp/package_manifest.txt"
+    destination = "manifests/${source.name}.txt"
+    direction   = "download"
+  }
+
+  # Clean up the server so we can pretend it's never been booted before.
+  provisioner "shell" {
+    inline = [
+      # Go ahead and nuke our mainfest
+      "sudo rm -fr /tmp/package_manifest.txt",
       # Taken from debian-server-images
       "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/.bash_history /root/.ssh/ /root/.ansible/ /root/.bundle/ /etc/machine-id /var/lib/dbus/machine-id",
       # Ensure we stop things that'll log before we clear logs

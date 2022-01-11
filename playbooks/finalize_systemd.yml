@@ -20,7 +20,7 @@
     - name: Create teak-init target
       template:
         src: data/teak-init.target
-        dest: /lib/systemd/system/teak-init.target
+        dest: /etc/systemd/system/teak-init.target
         owner: root
         group: root
         mode: 0644

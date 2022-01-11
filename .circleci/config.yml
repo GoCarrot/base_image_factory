@@ -15,7 +15,7 @@
 version: 2.1
 
 orbs:
-  teak: teak/sdk-utils@0.1
+  teak: teak/sdk-utils@0.2
 
 jobs:
   setup:
@@ -44,8 +44,15 @@ workflows:
           name: "Generate Base Image (Development)"
           pre-steps:
             - run:
-                command: sudo apt-get update && sudo apt-get install -y ansible awscli
-          var: "region=us-east-1,environment=development"
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
+            - run:
+                command: |
+                  ip=$(curl -s https://api.ipify.org)
+                  echo "My public IP address is: $ip"
+          post-steps:
+            - store_artifacts:
+                path: "manifests/"
+          var: "region=us-east-1,environment=development,security_group_name=CircleCI-SSHAccess"
           except: "vagrant.*"
           context: AWS-Write
           requires:
@@ -57,8 +64,15 @@ workflows:
           name: "Generate Node Image (Development)"
           pre-steps:
             - run:
-                command: sudo apt-get update && sudo apt-get install -y ansible awscli
-          var: "region=us-east-1,environment=development"
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
+            - run:
+                command: |
+                  ip=$(curl -s https://api.ipify.org)
+                  echo "My public IP address is: $ip"
+          post-steps:
+            - store_artifacts:
+                path: "language_images/node12/manifests/"
+          var: "region=us-east-1,environment=development,security_group_name=CircleCI-SSHAccess"
           except: "vagrant.*"
           context: AWS-Write
           packer_working_directory: "language_images/node12"
@@ -76,12 +90,40 @@ workflows:
           version: 1.7.5-dev2
           github_releases_user: AlexSc
           gpg_key_id: EC3A3F7C6C4F9D25
-          name: "Generate Images (Production)"
+          name: "Generate Base Image (Production)"
           pre-steps:
             - run:
-                command: sudo apt-get update && sudo apt-get install -y ansible awscli
-          var: "region=us-east-1,environment=production"
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
+            - run:
+                command: |
+                  ip=$(curl -s https://api.ipify.org)
+                  echo "My public IP address is: $ip"
+          post-steps:
+            - store_artifacts:
+                path: "manifests/"
+          var: "region=us-east-1,environment=production,security_group_name=CircleCI-SSHAccess"
           except: "vagrant.*"
           context: AWS-Write
           requires:
             - setup
+      - teak/packer-build:
+          version: 1.7.5-dev2
+          github_releases_user: AlexSc
+          gpg_key_id: EC3A3F7C6C4F9D25
+          name: "Generate Node Image (Production)"
+          pre-steps:
+            - run:
+                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
+            - run:
+                command: |
+                  ip=$(curl -s https://api.ipify.org)
+                  echo "My public IP address is: $ip"
+          post-steps:
+            - store_artifacts:
+                path: "language_images/node12/manifests/"
+          var: "region=us-east-1,environment=production,security_group_name=CircleCI-SSHAccess"
+          except: "vagrant.*"
+          context: AWS-Write
+          packer_working_directory: "language_images/node12"
+          requires:
+            - "Generate Base Image (Production)"
