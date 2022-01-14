@@ -19,7 +19,7 @@
   tasks:
     - name: Ensure root directory structure exists
       file:
-        path: '{{ item.path }}'
+        path: '/{{ item.path }}'
         state: directory
         owner: root
         group: root
@@ -30,7 +30,7 @@
     - name: Copy/Template filesystem
       template:
         src: '{{ item.src }}'
-        dest: '{{ item.path }}'
+        dest: '/{{ item.path }}'
         owner: root
         group: root
         mode: 0644
