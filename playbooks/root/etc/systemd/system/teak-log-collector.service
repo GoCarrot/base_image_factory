@@ -53,7 +53,7 @@ Environment="MALLOC_ARENA_MAX=2"
 
 User={{ fluentd_user.name }}
 Type=simple
-ExecStart={{ fluentd_install.path }}/bin/fluentd -o "${LOGS_DIRECTORY}/self.log" -c {{ fluentd_config.dest }} --no-supervisor
+ExecStart={{ fluentd_install.path }}/bin/fluentd -o "${LOGS_DIRECTORY}/self.log" -c /etc/fluent/fluent.conf --no-supervisor
 Restart=always
 
 [Install]
