@@ -25,8 +25,7 @@
         - "vars_{{ build_environment }}.yml"
         - "vars_default.yml"
 
-- import_playbook: systemd.yml
 - import_playbook: newrelic.yml
 - import_playbook: fluentd.yml
 - import_playbook: configurator.yml
-- import_playbook: finalize_systemd.yml
+- import_playbook: finalize_system.yml

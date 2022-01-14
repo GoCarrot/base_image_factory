@@ -70,57 +70,6 @@
         owner: root
         group: root
 
-    - name: Create dropin directory
-      file:
-        path: /etc/systemd/system/teak-configurator.service.d
-        owner: root
-        group: root
-        mode: 0755
-        state: directory
-
-    - name: Set configurator user
-      template:
-        src: data/teak-configurator-dropin.conf
-        dest: /etc/systemd/system/teak-configurator.service.d/00_user.conf
-        owner: root
-        group: root
-        mode: 0644
-
-    - name: Create Configurator Config Base Dir
-      register: configurator_base
-      file:
-        path: /etc/teak-configurator
-        owner: root
-        group: root
-        mode: 0755
-        state: directory
-
-    - name: Create Configurator Log Config
-      template:
-        src: data/00_base.yml.conf
-        dest: "{{ configurator_base.path }}/00_base.yml.conf"
-        owner: root
-        group: root
-        mode: 0644
-
-    - name: Configure Configurator Logrotate
-      template:
-        src: data/configurator-logrotate.conf
-        dest: /etc/logrotate.d/teak-configurator
-        owner: root
-        group: root
-        mode: 0644
-
-    - name: Enable Meta Configurator
-      service:
-        name: teak-metaconfigurator
-        enabled: yes
-
-    - name: Enable Configurator
-      service:
-        name: teak-configurator
-        enabled: yes
-
     - name: Remove Configurator Deployment Packages
       apt:
         state: absent

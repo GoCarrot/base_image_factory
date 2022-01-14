@@ -53,16 +53,3 @@
       file:
         path: /etc/apt/sources.list.d/packages_new_relic_debian_bullseye.list
         state: absent
-
-    - name: Disable newrelic-infra
-      service:
-        name: newrelic-infra
-        enabled: no
-
-    - name: Replace nri service file
-      template:
-        src: data/newrelic-infra.service
-        dest: /etc/systemd/system/newrelic-infra.service
-        owner: root
-        group: root
-        mode: 0644
