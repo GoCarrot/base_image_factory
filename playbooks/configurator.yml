@@ -26,53 +26,17 @@
         password: "!"
         system: yes
 
-    - name: Install Configurator Deployment Packages
-      apt:
-        update_cache: yes
-        install_recommends: no
-        state: present
-        name:
-          - git
-
-    - name: Install Configurator Runtime Packages
-      apt:
-        update_cache: yes
-        install_recommends: no
-        state: present
-        name:
-          - ruby
-
-    - name: Create opt dir
+    - name: Create Configurator Install Dir
+      register: configurator_install_dir
       file:
-        path: /opt
-        group: root
+        path: /opt/teak-configurator
         owner: root
-        mode: '755'
+        group: root
+        mode: 0755
         state: directory
 
-    - name: Clone configurator to opt
-      git:
-        dest: /opt/teak-configurator
-        repo: https://github.com/GoCarrot/configurator.git
-        version: "{{ configurator_branch }}"
-
-    - name: Install configurator dependencies
-      shell:
-        chdir: /opt/teak-configurator/
-        cmd: BUNDLE_DEPLOYMENT=true BUNDLE_WITHOUT=development:test bundle2.7 install
-
-    - name: Copy systemd configuration
-      copy:
-        src: /opt/teak-configurator/systemd/
-        dest: /etc/systemd/system/
-        remote_src: yes
-        mode: '644'
-        owner: root
-        group: root
-
-    - name: Remove Configurator Deployment Packages
-      apt:
-        state: absent
-        purge: yes
-        name:
-          - git
+    - name: Install Configomat
+      shell: |
+        gem install config_o_mat -v "~> 0.1.0" -N --conservative --minimal-deps
+      environment:
+        GEM_HOME={{ configurator_install_dir.path} }

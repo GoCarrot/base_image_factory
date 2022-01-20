@@ -16,15 +16,18 @@
 - hosts: all
   become: yes
 
-  vars:
-    build_environment: development
+  tasks:
+    - name: Install Ruby
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - ruby
 
-  pre_tasks:
-    - include_vars: "{{ item }}"
-      with_first_found:
-        - "vars_{{ build_environment }}.yml"
-        - "vars_default.yml"
+    - name: Install AWS SDK for Ruby
+      shell: |
+        gem install aws-sdk-core -v "~> 3.125, >= 3.125.5" -N --conservative --minimal-deps
 
-- import_playbook: newrelic.yml
-- import_playbook: ruby_services.yml
-- import_playbook: finalize_system.yml
+- import_playbook: fluentd.yml
+- import_playbook: configurator.yml

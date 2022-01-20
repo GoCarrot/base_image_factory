@@ -1,0 +1,71 @@
+# Copyright 2021 Teak.io, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[Unit]
+Description=Teak Configurator
+Requires=teak-metaconfigurator.service network.target
+After=teak-metaconfigurator.service network.target
+
+[Service]
+Slice=teak-services.slice
+ReadOnlyPaths=/
+ProtectSystem=strict
+RuntimeDirectory=teak-configurator
+# We use files in our runtime directory to both indicate to systemd that services should
+# be restarted and to provide "credential" data to systemd services. If systemd nukes that
+# directory it will see changes to the files we touch to restart services, and so restart the
+# services. When the services restart, they will try to load their "credential" data, which will
+# also be absent. This takes down all the services.
+#
+# I would prefer that things continue operating even if the configurator dies -- we can find other
+# mechanisms to mark a server as unhealthy if it can no longer get new config data.
+RuntimeDirectoryPreserve=yes
+RuntimeDirectoryMode=0700
+LogsDirectory=teak-configurator
+ConfigurationDirectory=teak-configurator
+WorkingDirectory={{configurator_install_dir.path}}
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateUsers=yes
+ProtectClock=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+RemoveIPC=yes
+UMask=0033
+
+SystemCallArchitectures=native
+SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @raw-io @reboot @resources @swap
+
+CapabilityBoundingSet=
+RestrictAddressFamilies=~AF_NETLINK AF_PACKET
+RestrictNamespaces=yes
+
+Environment="GEM_HOME={{ configurator_install_dir.path }}"
+
+WatchdogSec=60
+
+User={{ configurator_user.name }}
+NotifyAccess=main
+Type=notify
+ExecStart={{configurator_install_dir.path}}/bin/config_o_mat-configurator
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

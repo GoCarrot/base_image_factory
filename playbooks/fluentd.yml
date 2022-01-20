@@ -48,10 +48,12 @@
 
     - name: Install Fluentd and plugins
       shell: |
-        gem install fluentd -v "~> 1.14, >= 1.14.3" --install-dir={{ fluentd_install.path }} -N --conservative --minimal-deps
-        gem install fluent-plugin-systemd -v "~> 1.0, >= 1.0.5" --install-dir={{ fluentd_install.path }} -N --conservative --minimal-deps
-        gem install fluent-plugin-cloudwatch-logs -v "~> 0.14.2" --install-dir={{ fluentd_install.path }} -N --conservative --minimal-deps
-        gem install oj -v "~> 3.13, >= 3.13.10" --install-dir={{ fluentd_install.path }} -N --conservative --minimal-deps
+        gem install fluentd -v "~> 1.14, >= 1.14.3" -N --conservative --minimal-deps
+        gem install fluent-plugin-systemd -v "~> 1.0, >= 1.0.5" -N --conservative --minimal-deps
+        gem install fluent-plugin-cloudwatch-logs -v "~> 0.14.2" -N --conservative --minimal-deps
+        gem install oj -v "~> 3.13, >= 3.13.10" -N --conservative --minimal-deps
+      environment:
+        GEM_HOME={{fluentd_install.path}}
 
     - name: Remove Fluentd Deployment Packages
       apt:
