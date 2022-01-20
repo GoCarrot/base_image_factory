@@ -53,7 +53,7 @@
         gem install fluent-plugin-cloudwatch-logs -v "~> 0.14.2" -N --conservative --minimal-deps
         gem install oj -v "~> 3.13, >= 3.13.10" -N --conservative --minimal-deps
       environment:
-        GEM_HOME={{fluentd_install.path}}
+        GEM_HOME: {{ fluentd_install.path }}
 
     - name: Remove Fluentd Deployment Packages
       apt:
