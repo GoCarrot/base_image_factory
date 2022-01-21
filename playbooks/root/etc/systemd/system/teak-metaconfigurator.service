@@ -52,7 +52,7 @@ Environment="GEM_HOME={{ configurator_install_dir.path }}"
 
 User=root
 Type=oneshot
-ExecStart={{configurator_install_dir.path}}bin/config_o_mat-meta_configurator
+ExecStart={{ configurator_install_dir.path }}/bin/config_o_mat-meta_configurator
 RemainAfterExit=yes
 
 [Install]

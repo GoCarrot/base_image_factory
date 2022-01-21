@@ -64,7 +64,7 @@ WatchdogSec=60
 User={{ configurator_user.name }}
 NotifyAccess=main
 Type=notify
-ExecStart={{configurator_install_dir.path}}/bin/config_o_mat-configurator
+ExecStart={{ configurator_install_dir.path }}/bin/config_o_mat-configurator
 Restart=always
 
 [Install]
