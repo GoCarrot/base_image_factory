@@ -12,11 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-/var/log/teak-log-collector/self.log {
-  missingok
-  notifempty
-  compress
-  delaycompress
-  weekly
-  rotate 4
-}
+# By enabling this unit for a service, we ensure that after the service starts systemd
+# listens for touches on the configurator's stop file, and will run teak-configurator-stop-service@%i.service
+# when the file is touched.
+#
+# This allows the configurator to stop systemd services without privileged access.
+[Unit]
+Description=Touch a file to stop %i.service
+
+[Path]
+PathModified=/run/teak-configurator/%i.stop
+
+[Install]
+WantedBy=%i.service

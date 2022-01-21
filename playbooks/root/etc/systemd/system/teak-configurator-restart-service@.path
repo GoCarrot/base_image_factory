@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
----
-- hosts: all
-  become: yes
+# By enabling this unit for a service, we ensure that after the service starts systemd
+# listens for touches on the configurator's restart file, and will run teak-configurator-restart-service@%i.service
+# when the file is touched.
+#
+# This allows the configurator to restart systemd services without privileged access.
+[Unit]
+Description=Touch a file to restart %i.service
 
-  tasks:
-    - name: Create teak-init target
-      template:
-        src: data/teak-init.target
-        dest: /etc/systemd/system/teak-init.target
-        owner: root
-        group: root
-        mode: 0644
+[Path]
+PathModified=/run/teak-configurator/%i.restart
+
+[Install]
+WantedBy=%i.service

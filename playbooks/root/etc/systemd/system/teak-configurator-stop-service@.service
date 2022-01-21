@@ -12,19 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
----
-- hosts: all
-  become: yes
+[Unit]
+Description=Stop %i.service
 
-  vars:
-    build_environment: development
-
-  pre_tasks:
-    - include_vars: "{{ item }}"
-      with_first_found:
-        - "vars_{{ build_environment }}.yml"
-        - "vars_default.yml"
-
-- import_playbook: newrelic.yml
-- import_playbook: ruby_services.yml
-- import_playbook: finalize_system.yml
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl stop %i.service
+RemainAfterExit=no

@@ -13,24 +13,25 @@
 # limitations under the License.
 
 [Unit]
-Description=Teak Log Collector (Fluentd)
-Requires=network.target
-After=network.target
+Description=Teak Meta Configurator (Configures systemd for the configurator)
 
 [Service]
-Slice=teak-services.slice
 ReadOnlyPaths=/
-ProtectSystem=strict
-StateDirectory=teak-log-collector
-CacheDirectory=teak-log-collector
-LogsDirectory=teak-log-collector
-ConfigurationDirectory=teak-log-collector
+
+# We persist systemd dropins and other config, so make sure that's writeable
+ReadWritePaths=/run/systemd/system
+ProtectSystem=full
+RuntimeDirectory=teak-configurator
+LogsDirectory=teak-configurator
+ConfigurationDirectory=teak-configurator
+WorkingDirectory={{configurator_install_dir.path}}
 
 NoNewPrivileges=yes
 PrivateTmp=yes
 PrivateUsers=yes
 ProtectClock=yes
 PrivateDevices=yes
+PrivateNetwork=yes
 ProtectKernelTunables=yes
 ProtectKernelModules=yes
 ProtectControlGroups=yes
@@ -38,23 +39,21 @@ RestrictSUIDSGID=yes
 RestrictRealtime=yes
 LockPersonality=yes
 RemoveIPC=yes
-UMask=0077
+UMask=0033
 
 SystemCallArchitectures=native
-SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @privileged @raw-io @reboot @resources @swap
+SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @raw-io @reboot @resources @swap
 
 CapabilityBoundingSet=
-RestrictAddressFamilies=~AF_NETLINK AF_PACKET
+RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 
-Environment="GEM_HOME={{ fluentd_install.path }}"
-Environment="LOG_LEVEL=info"
-Environment="MALLOC_ARENA_MAX=2"
+Environment="GEM_HOME={{ configurator_install_dir.path }}"
 
-User={{ fluentd_user.name }}
-Type=simple
-ExecStart={{ fluentd_install.path }}/bin/fluentd -o "${LOGS_DIRECTORY}/self.log" -c {{ fluentd_config.dest }} --no-supervisor
-Restart=always
+User=root
+Type=oneshot
+ExecStart={{ configurator_install_dir.path }}/bin/config_o_mat-meta_configurator
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
