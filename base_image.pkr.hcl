@@ -338,6 +338,9 @@ EOT
   }
 
   post-processor "manifest" {
-    output = "manifests/packer-manifest.json"
+    output      = "manifests/packer-manifest.json"
+    custom_data = {
+      arch = "${split(replace(source.name, "_", "/", 1), "/", 1)}"
+    }
   }
 }
