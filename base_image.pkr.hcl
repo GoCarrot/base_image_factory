@@ -340,7 +340,7 @@ EOT
   post-processor "manifest" {
     output      = "manifests/packer-manifest.json"
     custom_data = {
-      arch = "${trimprefix(source.name, "debian_")}"
+      arch = "${trimprefix(source.name, "${build.name}_")}"
     }
   }
 }
