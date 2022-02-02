@@ -336,4 +336,8 @@ EOT
       "sudo userdel --remove --force $CURRENT_USER"
     ]
   }
+
+  post-processor "manifest" {
+    output = "manifests/packer-manifest.json"
+  }
 }
