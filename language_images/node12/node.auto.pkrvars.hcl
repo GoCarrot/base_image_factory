@@ -14,3 +14,4 @@
 
 ami_prefix             = "node12"
 source_ami_name_prefix = "base"
+cost_center            = "node12_image"
