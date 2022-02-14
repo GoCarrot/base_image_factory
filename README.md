@@ -28,13 +28,12 @@ Environment="TEAK_SERVICE={{service_name}}"
 
 The Base Image provides teak-init.target, which will not be active until all services provided by the Base Image are available. Downstream services should set `After=teak-init.target` in their unit configurations.
 
-### FluentBit
+### Fluentd
 
-The Base Image provides [FluentBit](https://fluentbit.io) as teak-log-collector, with the following defaults:
-
+The Base Image provides [Fluentd](https://www.fluentd.org) as teak-log-collector, with the following defaults:
 - systemd, cloudinit, fluentbit, and configurator logs are tailed under ancillary.{process}
-- ancillary logs are outputted to cloudwatch_logs under /fb/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
-- logs with the service.default tag will be outputted to /fb/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
+- ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
+- logs with the service.default tag will be outputted to /teak/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
 - Downstream images may add additional configuration for fluentbit in /etc/teak-log-collector/conf.d/\*.conf.
 
 FluentBit is enabled by default in this image.
