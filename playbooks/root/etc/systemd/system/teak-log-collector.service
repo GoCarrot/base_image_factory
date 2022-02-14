@@ -56,5 +56,8 @@ Type=simple
 ExecStart={{ fluentd_install.path }}/bin/fluentd -o "${LOGS_DIRECTORY}/self.log" -c /etc/fluent/fluent.conf --no-supervisor
 Restart=always
 
+# Give the log collector time to flush all buffers during shutdown.
+TimeoutStopSec=5
+
 [Install]
 WantedBy=multi-user.target
