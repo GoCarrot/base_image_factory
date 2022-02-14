@@ -7,6 +7,7 @@ This provisions a Base Image from a previously created Root Image.
 We use `Root Image` to mean a completely unprovisioned bare image with nothing beyond a basic OS install. We use `Base Image` to mean a partially provisioned image with services required by all operational servers, e.g. monitoring, log aggregation, telemetry, etc.
 
 ## Local System Requirements
+
 - packer >= 1.7.3
 - ansible >= 4.3
 
@@ -30,6 +31,7 @@ The Base Image provides teak-init.target, which will not be active until all ser
 ### FluentBit
 
 The Base Image provides [FluentBit](https://fluentbit.io) as teak-log-collector, with the following defaults:
+
 - systemd, cloudinit, fluentbit, and configurator logs are tailed under ancillary.{process}
 - ancillary logs are outputted to cloudwatch_logs under /fb/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
 - logs with the service.default tag will be outputted to /fb/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
@@ -38,11 +40,14 @@ The Base Image provides [FluentBit](https://fluentbit.io) as teak-log-collector,
 FluentBit is enabled by default in this image.
 
 #### Special Configuration Notes
+
 Because FluentBit does not allow glob matches for parser or plugins config, and does not allow configuring parsers or plugins in normal config files, this image provides the files /etc/td-agent-bit/10_service_plugins.conf and /etc/td-agent-bit/10_service_parsers.conf. Downstream provisioners may _append_ content to these files in order to provide plugins and parsers for their usecases.
 
 #### Disabling FluentBit
+
 To disable FluentBit at boot, use the following user-data
-```
+
+```yml
 #cloud-config
 bootcmd:
   - [systemctl, stop, --no-block, teak-log-collector]
