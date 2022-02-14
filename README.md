@@ -31,20 +31,17 @@ The Base Image provides teak-init.target, which will not be active until all ser
 ### Fluentd
 
 The Base Image provides [Fluentd](https://www.fluentd.org) as teak-log-collector, with the following defaults:
-- systemd, cloudinit, fluentbit, and configurator logs are tailed under ancillary.{process}
+
+- systemd, cloudinit, fluentf, and configurator logs are tailed under ancillary.{process}
 - ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
 - logs with the service.default tag will be outputted to /teak/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
-- Downstream images may add additional configuration for fluentbit in /etc/teak-log-collector/conf.d/\*.conf.
+- Downstream images may add additional configuration for fluentd in /etc/teak-log-collector/conf.d/\*.conf.
 
-FluentBit is enabled by default in this image.
+Fluentd is enabled by default in this image.
 
-#### Special Configuration Notes
+#### Disabling Fluentd
 
-Because FluentBit does not allow glob matches for parser or plugins config, and does not allow configuring parsers or plugins in normal config files, this image provides the files /etc/td-agent-bit/10_service_plugins.conf and /etc/td-agent-bit/10_service_parsers.conf. Downstream provisioners may _append_ content to these files in order to provide plugins and parsers for their usecases.
-
-#### Disabling FluentBit
-
-To disable FluentBit at boot, use the following user-data
+To disable Fluentd at boot, use the following user-data
 
 ```yml
 #cloud-config
@@ -54,7 +51,7 @@ bootcmd:
 
 Be sure to wipe `/var/lib/cloud` after provisioning so that this user-data does not persist to live servers.
 
-It is recommended that FluentBit remain enabled so that the server logs from the build process running be logged to CloudWatch.
+It is recommended that Fluentd remain enabled so that the server logs from the build process running be logged to CloudWatch.
 
 ### Configurator
 
