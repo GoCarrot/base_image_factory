@@ -102,19 +102,19 @@ variable "commit_id" {
 data "amazon-parameterstore" "role_arn" {
   region = var.region
 
-  name = "/fb/${var.environment}/cicd/roles/packer"
+  name = "/teak/${var.environment}/ci-cd/roles/packer"
 }
 
 data "amazon-parameterstore" "instance_profile" {
   region = var.region
 
-  name = "/fb/${var.environment}/cicd/config/ServerImages/instance_profile"
+  name = "/teak/${var.environment}/ci-cd/config/ServerImages/instance_profile"
 }
 
 data "amazon-parameterstore" "ami_users" {
   region = var.region
 
-  name = "/fb/${var.environment}/cicd/config/ServerImages/ami_consumers"
+  name = "/teak/${var.environment}/ci-cd/config/ServerImages/ami_consumers"
 }
 
 # Pull the latest root image
