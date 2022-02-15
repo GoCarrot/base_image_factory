@@ -13,9 +13,9 @@
 # limitations under the License.
 
 [Unit]
-Description=Restart %i.service
+Description=Restart %I.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/systemctl restart %i.service
+ExecStart=/usr/bin/systemctl restart %I.service
 RemainAfterExit=no
