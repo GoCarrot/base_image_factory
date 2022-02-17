@@ -35,7 +35,7 @@ The Base Image provides [Fluentd](https://www.fluentd.org) as teak-log-collector
 - systemd, cloudinit, fluentd, and configurator logs are tailed under ancillary.{process}
 - ancillary logs are outputted to cloudwatch_logs under /teak/server/{{ server_environment }}/ancillary/{{ process_name }}:{{ service_name }}.{{ hostname }}
 - logs with the service.default tag will be outputted to /teak/server/{{ server_environment }}/service/{{ service_name }}:{{ service_name }}.{{ hostname }}
-- Downstream images may add additional configuration for fluentd in /etc/teak-log-collector/conf.d/\*.conf.
+- Downstream images may add additional configuration for fluentd in /etc/fluent/conf.d/\*.conf.
 
 Fluentd is enabled by default in this image.
 
