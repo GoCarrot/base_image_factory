@@ -53,9 +53,9 @@ Be sure to wipe `/var/lib/cloud` after provisioning so that this user-data does 
 
 It is recommended that Fluentd remain enabled so that the server logs from the build process running be logged to CloudWatch.
 
-### Configurator
+### Config O-Mat
 
-The Base Image provides the [configurator](https://github.com/GoCarrot/configurator) as teak-configurator.
+The Base Image provides the [config_o_mat](https://github.com/GoCarrot/config_o_mat) as teak-configurator.
 
 teak-configurator is enabled by default in this image.
 
