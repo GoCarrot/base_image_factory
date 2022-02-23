@@ -1,3 +1,4 @@
 # Ignore build outputs
 .vagrant
 output-debian
+manifests/

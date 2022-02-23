@@ -14,3 +14,4 @@
 
 ami_prefix             = "base"
 source_ami_name_prefix = "root"
+cost_center            = "base_image"
