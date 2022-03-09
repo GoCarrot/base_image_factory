@@ -319,7 +319,8 @@ EOT
     inline = [
       # In case we had any temporary packages
       "sudo apt-get autoremove --purge -y -o 'APT::AutoRemove::SuggestsImportant=false' -o 'APT::AutoRemove::RecommendsImportant=false'",
-      "sudo dpkg-query --show > /tmp/package_manifest.txt"
+      "sudo dpkg-query --show > /tmp/package_manifest.txt",
+      "sudo dpkg-query --show -f '$${source:Package}\\t$${source:Version}\\n' | sort | uniq > /tmp/source_package_manifest.txt"
     ]
   }
 
@@ -330,11 +331,18 @@ EOT
     direction   = "download"
   }
 
+  provisioner "file" {
+    source      = "/tmp/source_package_manifest.txt"
+    destination = "manifests/source_${source.name}.txt"
+    direction   = "download"
+  }
+
   # Clean up the server so we can pretend it's never been booted before.
   provisioner "shell" {
     inline = [
       # Go ahead and nuke our mainfest
       "sudo rm -fr /tmp/package_manifest.txt",
+      "sudo rm -fr /tmp/source_package_manifest.txt",
       # Taken from debian-server-images
       "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/.bash_history /root/.ssh/ /root/.ansible/ /root/.bundle/ /etc/machine-id /var/lib/dbus/machine-id",
       # Ensure we stop things that'll log before we clear logs
