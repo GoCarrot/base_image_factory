@@ -347,7 +347,7 @@ EOT
       "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/.bash_history /root/.ssh/ /root/.ansible/ /root/.bundle/ /etc/machine-id /var/lib/dbus/machine-id",
       # Ensure we stop things that'll log before we clear logs
       "sudo systemctl stop teak-log-collector.service teak-configurator.service systemd-journald.service systemd-journald-dev-log.socket systemd-journald.socket systemd-journald-audit.socket",
-      "sudo /bin/dash -c 'find /var/log -type f | tee /dev/stderr | xargs rm'",
+      "sudo /bin/dash -c 'find /var/log -type f -not -empty | tee /dev/stderr | xargs rm'",
       # I also want to clear the empty log folder.
       "sudo rm -fr /var/log/journal/*",
       "sudo shred --remove /etc/ssh/ssh_host_*",
