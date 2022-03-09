@@ -33,9 +33,9 @@ variable "region" {
   description = "AWS region to build AMIs in"
 }
 
-variable "environment" {
+variable "build_account_canonical_slug" {
   type        = string
-  description = "Value to be assigned to the Environment tag on created AMIs"
+  description = "The canonical_slug for an account as assigned by accountomat to build the AMI in."
 }
 
 variable "cost_center" {
@@ -87,34 +87,46 @@ variable "volume_size" {
   default     = 2
 }
 
-variable "security_group_name" {
-  type        = string
-  description = "The name of the security group to attach to builder instances. Leave blank to use Packer generated security groups."
-  default     = ""
-}
-
 variable "commit_id" {
   type        = string
   description = "The full git sha of the commit that the image is being built from."
   default     = env("CIRCLE_SHA1")
 }
 
+variable "use_generated_security_group" {
+  type        = bool
+  description = "If false, will use the security group configured for the account. If true, will have packer generate a new security group for this build."
+  default     = false
+}
+
+data "amazon-parameterstore" "account_info" {
+  region = var.region
+
+  name = "/omat/account_registry/${var.build_account_canonical_slug}"
+}
+
 data "amazon-parameterstore" "role_arn" {
   region = var.region
 
-  name = "/teak/${var.environment}/ci-cd/roles/packer"
+  name = "${jsondecode(data.amazon-parameterstore.account_info.value)["prefix"]}/roles/packer"
+}
+
+data "amazon-parameterstore" "security_group_name" {
+  region = var.region
+
+  name = "${jsondecode(data.amazon-parameterstore.account_info.value)["prefix"]}/config/ServerImages/security_group_name"
 }
 
 data "amazon-parameterstore" "instance_profile" {
   region = var.region
 
-  name = "/teak/${var.environment}/ci-cd/config/ServerImages/instance_profile"
+  name = "${jsondecode(data.amazon-parameterstore.account_info.value)["prefix"]}/config/ServerImages/instance_profile"
 }
 
 data "amazon-parameterstore" "ami_users" {
   region = var.region
 
-  name = "/teak/${var.environment}/ci-cd/config/ServerImages/ami_consumers"
+  name = "${jsondecode(data.amazon-parameterstore.account_info.value)["prefix"]}/config/ServerImages/ami_consumers"
 }
 
 # Pull the latest root image
@@ -125,7 +137,7 @@ data "amazon-ami" "base_x86_64_debian_ami" {
 
   filters = {
     virtualization-type = "hvm"
-    name                = "${var.environment}_${var.source_ami_name_prefix}*"
+    name                = "${jsondecode(data.amazon-parameterstore.account_info.value)["environment"]}_${var.source_ami_name_prefix}*"
     architecture        = "x86_64"
   }
   region      = var.region
@@ -140,7 +152,7 @@ data "amazon-ami" "base_arm64_debian_ami" {
 
   filters = {
     virtualization-type = "hvm"
-    name                = "${var.environment}_${var.source_ami_name_prefix}*"
+    name                = "${jsondecode(data.amazon-parameterstore.account_info.value)["environment"]}_${var.source_ami_name_prefix}*"
     architecture        = "arm64"
   }
   region      = var.region
@@ -149,6 +161,10 @@ data "amazon-ami" "base_arm64_debian_ami" {
 }
 
 locals {
+  account_info        = jsondecode(data.amazon-parameterstore.account_info.value)
+  security_group_name = var.use_generated_security_group ? "" : data.amazon-parameterstore.security_group_name.value
+  environment         = local.account_info["environment"]
+
   timestamp = regex_replace(timestamp(), "[- :]", "")
   source_ami = {
     x86_64 = data.amazon-ami.base_x86_64_debian_ami
@@ -175,18 +191,18 @@ source "amazon-ebs" "debian" {
   }
 
   dynamic "security_group_filter" {
-    for_each = [for s in [var.security_group_name] : s if s != ""]
+    for_each = [for s in [local.security_group_name] : s if s != ""]
 
     content {
       filters = {
-        "group-name" = var.security_group_name
+        "group-name" = local.security_group_name
       }
     }
   }
 
   run_volume_tags = {
     Managed     = "packer"
-    Environment = var.environment
+    Environment = local.environment
     CostCenter  = var.cost_center
   }
 
@@ -248,22 +264,22 @@ build {
 
     content {
       name          = "debian_${arch.key}"
-      ami_name      = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
+      ami_name      = "${local.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
       instance_type = var.instance_type[arch.key]
 
       source_ami = local.source_ami[arch.key].id
 
       run_tags = {
         Application = "ImageFactory"
-        Environment = var.environment
+        Environment = local.environment
         CostCenter  = var.cost_center
         Managed     = "packer"
-        Service     = "${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
+        Service     = "${local.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
       }
 
       tags = {
         Application = var.application
-        Environment = var.environment
+        Environment = local.environment
         CostCenter  = var.cost_center
         SourceAmi   = local.source_ami[arch.key].name
         SourceAmiId = local.source_ami[arch.key].id
@@ -275,7 +291,7 @@ build {
       write_files:
         - content: |
             [Service]
-            Environment="TEAK_SERVICE=${var.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
+            Environment="TEAK_SERVICE=${local.environment}_${var.ami_prefix}_${arch.key}.${local.timestamp}"
           path: /run/systemd/system/teak-.service.d/01_build_environment.conf
           owner: root:root
           permissions: '0644'
@@ -290,7 +306,7 @@ EOT
   provisioner "ansible" {
     playbook_file = abspath(var.ansible_playbook)
     extra_arguments = [
-      "--extra-vars", "build_environment=${var.environment} region=${var.region} build_type=${source.type}"
+      "--extra-vars", "build_environment=${local.environment} region=${var.region} build_type=${source.type}"
     ]
     ansible_env_vars = [
       "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s'",

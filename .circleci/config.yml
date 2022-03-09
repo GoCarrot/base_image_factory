@@ -52,7 +52,7 @@ workflows:
           post-steps:
             - store_artifacts:
                 path: "manifests/"
-          var: "region=us-east-1,environment=development,security_group_name=CircleCI-SSHAccess"
+          var: "region=us-east-1,build_account_canonical_slug=development-ci-cd"
           except: "vagrant.*"
           context: AWS-Write
           requires:
@@ -72,7 +72,7 @@ workflows:
           post-steps:
             - store_artifacts:
                 path: "language_images/node12/manifests/"
-          var: "region=us-east-1,environment=development,security_group_name=CircleCI-SSHAccess"
+          var: "region=us-east-1,build_account_canonical_slug=development-ci-cd"
           except: "vagrant.*"
           context: AWS-Write
           packer_working_directory: "language_images/node12"
@@ -101,7 +101,7 @@ workflows:
           post-steps:
             - store_artifacts:
                 path: "manifests/"
-          var: "region=us-east-1,environment=production,security_group_name=CircleCI-SSHAccess"
+          var: "region=us-east-1,build_account_canonical_slug=production-ci-cd"
           except: "vagrant.*"
           context: AWS-Write
           requires:
@@ -121,7 +121,7 @@ workflows:
           post-steps:
             - store_artifacts:
                 path: "language_images/node12/manifests/"
-          var: "region=us-east-1,environment=production,security_group_name=CircleCI-SSHAccess"
+          var: "region=us-east-1,build_account_canonical_slug=production-ci-cd"
           except: "vagrant.*"
           context: AWS-Write
           packer_working_directory: "language_images/node12"
