@@ -304,7 +304,7 @@ EOT
   }
 
   provisioner "ansible" {
-    playbook_file = abspath(var.ansible_playbook)
+    playbook_file = "${path.root}/${var.ansible_playbook}"
     extra_arguments = [
       "--extra-vars", "build_environment=${local.environment} region=${var.region} build_type=${source.type}"
     ]
@@ -327,13 +327,13 @@ EOT
   # Download the package manifest locally.
   provisioner "file" {
     source      = "/tmp/package_manifest.txt"
-    destination = "manifests/${source.name}.txt"
+    destination = "${path.root}/manifests/${source.name}.txt"
     direction   = "download"
   }
 
   provisioner "file" {
     source      = "/tmp/source_package_manifest.txt"
-    destination = "manifests/source_${source.name}.txt"
+    destination = "${path.root}/manifests/source_${source.name}.txt"
     direction   = "download"
   }
 
@@ -362,7 +362,7 @@ EOT
   }
 
   post-processor "manifest" {
-    output      = "manifests/packer-manifest.json"
+    output      = "${path.root}/manifests/packer-manifest.json"
     custom_data = {
       arch = "${trimprefix(source.name, "debian_")}"
     }
