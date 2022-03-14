@@ -67,7 +67,7 @@ references:
     post-steps:
       - store_artifacts:
           path: "lanugage_images/node12/manifests"
-    packer_working_directory: "lanugage_images/node12"
+    packer_working_directory: "language_images/node12"
     requires:
       - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
 
