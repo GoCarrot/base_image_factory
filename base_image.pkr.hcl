@@ -139,6 +139,7 @@ data "amazon-ami" "base_x86_64_debian_ami" {
     virtualization-type = "hvm"
     name                = "${jsondecode(data.amazon-parameterstore.account_info.value)["environment"]}_${var.source_ami_name_prefix}*"
     architecture        = "x86_64"
+    state               = "available"
   }
   region      = var.region
   owners      = var.source_ami_owners
@@ -154,6 +155,7 @@ data "amazon-ami" "base_arm64_debian_ami" {
     virtualization-type = "hvm"
     name                = "${jsondecode(data.amazon-parameterstore.account_info.value)["environment"]}_${var.source_ami_name_prefix}*"
     architecture        = "arm64"
+    state               = "available"
   }
   region      = var.region
   owners      = var.source_ami_owners
