@@ -28,7 +28,7 @@ parameters:
     default: ''
 
 orbs:
-  teak: teak/sdk-utils@0.4
+  teak: teak/sdk-utils@dev:alpha
 
 jobs:
   setup:
@@ -80,4 +80,4 @@ workflows:
     jobs:
       - teak/ami-update-continuation:
           region: << pipeline.parameters.region >>
-          deployomat_canonical_slug: << pipeline.parameters.build_account_slug>>
+          build_account_slug: << pipeline.parameters.build_account_slug>>
