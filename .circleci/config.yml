@@ -33,26 +33,12 @@ parameters:
 orbs:
   teak: teak/sdk-utils@0.5
 
-jobs:
-  setup:
-    docker:
-      - image: cimg/base:stable
-
-    steps:
-      - teak/terraform-install:
-          version: 1.1.7
-      - teak/packer-install:
-          version: 1.7.5-dev2
-          github_releases_user: AlexSc
-          gpg_key_id: EC3A3F7C6C4F9D25
-
 workflows:
   version: 2
   terraform-plan:
     when:
       not: << pipeline.parameters.in_build_account_slug >>
     jobs:
-      - setup
       - teak/terraform-plan: &terraform-plan
           filters:
             branches:
@@ -66,8 +52,6 @@ workflows:
           var: "region=<< pipeline.parameters.region >>,branch=$CIRCLE_BRANCH"
           context: AWS-Write
           continuation_parameters: "region=<< pipeline.parameters.region >>,build_account_slug=development-ci-cd"
-          requires:
-            - setup
       - teak/terraform-plan:
           <<: *terraform-plan
           filters:
