@@ -108,6 +108,7 @@ workflows:
           requires:
             - "Apply (<< pipeline.parameters.workspace >>)"
       - teak/build-dependent-images: &build-depdendent-images
+          name: "Build base dependent images"
           region: << pipeline.parameters.region >>
           build_account_slug: << pipeline.parameters.build_account_slug >>
           ami_name_prefix: "base"
@@ -120,6 +121,7 @@ workflows:
           <<: *node-build
       - teak/build-dependent-images: &build-dependent-node-images
           <<: *build-depdendent-images
+          name: "Build node12 dependent images"
           ami_name_prefix: "node12"
           requires:
              - "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
