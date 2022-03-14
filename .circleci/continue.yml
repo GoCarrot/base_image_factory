@@ -39,6 +39,15 @@ parameters:
   deploy_account_slug:
     type: string
     default: ""
+  # Work around CircleCI brain damage.
+  # Continuation pipelines must declare all the same parameters as the setup pipeline, even
+  # though it's an error to just reuse those parameters without changes.
+  in_build_account_slug:
+    type: string
+    default: ''
+  in_deploy_account_slug:
+    type: string
+    default: ''
 
 references:
   packer-build: &packer-build

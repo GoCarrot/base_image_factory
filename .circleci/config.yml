@@ -20,10 +20,13 @@ parameters:
   region:
     type: string
     default: us-east-1
-  build_account_slug:
+  # Work around CircleCI brain damage.
+  # It is an error for a continuation to _not_ change a pipeline parameter. We drop the in_ prefix
+  # from these parameters in continue.yml, so that Circle sees changes.
+  in_build_account_slug:
     type: string
     default: ''
-  deploy_account_slug:
+  in_deploy_account_slug:
     type: string
     default: ''
 
@@ -47,7 +50,7 @@ workflows:
   version: 2
   terraform-plan:
     when:
-      not: << pipeline.parameters.build_account_slug >>
+      not: << pipeline.parameters.in_build_account_slug >>
     jobs:
       - setup
       - teak/terraform-plan: &terraform-plan
@@ -75,9 +78,9 @@ workflows:
           workspace: "production-ci-cd"
           continuation_parameters: "region=<< pipeline.parameters.region >>,build_account_slug=production-ci-cd"
   image-update-only:
-    when: << pipeline.parameters.build_account_slug >>
+    when: << pipeline.parameters.in_build_account_slug >>
 
     jobs:
       - teak/ami-update-continuation:
           region: << pipeline.parameters.region >>
-          build_account_slug: << pipeline.parameters.build_account_slug>>
+          build_account_slug: << pipeline.parameters.in_build_account_slug>>
