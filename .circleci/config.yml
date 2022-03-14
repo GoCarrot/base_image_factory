@@ -31,7 +31,7 @@ parameters:
     default: ''
 
 orbs:
-  teak: teak/sdk-utils@dev:alpha
+  teak: teak/sdk-utils@0.5
 
 jobs:
   setup:
