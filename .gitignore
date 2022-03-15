@@ -2,3 +2,7 @@
 .vagrant
 output-debian
 manifests/
+
+# Ignore terraform stuff
+*.tfplan
+.terraform

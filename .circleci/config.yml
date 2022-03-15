@@ -14,116 +14,57 @@
 
 version: 2.1
 
+setup: true
+
+parameters:
+  region:
+    type: string
+    default: us-east-1
+  # Work around CircleCI brain damage.
+  # It is an error for a continuation to _not_ change a pipeline parameter. We drop the in_ prefix
+  # from these parameters in continue.yml, so that Circle sees changes.
+  in_build_account_slug:
+    type: string
+    default: ''
+  in_deploy_account_slug:
+    type: string
+    default: ''
+
 orbs:
-  teak: teak/sdk-utils@0.2
-
-jobs:
-  setup:
-    docker:
-      - image: cimg/base:2021.04
-
-    steps:
-      - teak/packer-install:
-          version: 1.7.5-dev2
-          github_releases_user: AlexSc
-          gpg_key_id: EC3A3F7C6C4F9D25
+  teak: teak/sdk-utils@0.5
 
 workflows:
   version: 2
-  build-development:
+  terraform-plan:
+    when:
+      not: << pipeline.parameters.in_build_account_slug >>
     jobs:
-      - setup:
+      - teak/terraform-plan: &terraform-plan
           filters:
             branches:
               only:
                 - develop
-      - teak/packer-build:
-          version: 1.7.5-dev2
-          github_releases_user: AlexSc
-          gpg_key_id: EC3A3F7C6C4F9D25
-          name: "Generate Base Image (Development)"
-          pre-steps:
-            - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
-            - run:
-                command: |
-                  ip=$(curl -s https://api.ipify.org)
-                  echo "My public IP address is: $ip"
-          post-steps:
-            - store_artifacts:
-                path: "manifests/"
-          var: "region=us-east-1,build_account_canonical_slug=development-ci-cd"
-          except: "vagrant.*"
+          version: 1.1.7
+          name: "Plan (Development)"
+          path: "terraform"
+          workspace: "development-ci-cd"
+          continuation: true
+          var: "region=<< pipeline.parameters.region >>,branch=$CIRCLE_BRANCH"
           context: AWS-Write
-          requires:
-            - setup
-      - teak/packer-build:
-          version: 1.7.5-dev2
-          github_releases_user: AlexSc
-          gpg_key_id: EC3A3F7C6C4F9D25
-          name: "Generate Node Image (Development)"
-          pre-steps:
-            - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
-            - run:
-                command: |
-                  ip=$(curl -s https://api.ipify.org)
-                  echo "My public IP address is: $ip"
-          post-steps:
-            - store_artifacts:
-                path: "language_images/node12/manifests/"
-          var: "region=us-east-1,build_account_canonical_slug=development-ci-cd"
-          except: "vagrant.*"
-          context: AWS-Write
-          packer_working_directory: "language_images/node12"
-          requires:
-            - "Generate Base Image (Development)"
-
-  build-production:
-    jobs:
-      - setup:
+          continuation_parameters: "region=<< pipeline.parameters.region >>,build_account_slug=development-ci-cd"
+      - teak/terraform-plan:
+          <<: *terraform-plan
           filters:
             branches:
               only:
                 - main
-      - teak/packer-build:
-          version: 1.7.5-dev2
-          github_releases_user: AlexSc
-          gpg_key_id: EC3A3F7C6C4F9D25
-          name: "Generate Base Image (Production)"
-          pre-steps:
-            - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
-            - run:
-                command: |
-                  ip=$(curl -s https://api.ipify.org)
-                  echo "My public IP address is: $ip"
-          post-steps:
-            - store_artifacts:
-                path: "manifests/"
-          var: "region=us-east-1,build_account_canonical_slug=production-ci-cd"
-          except: "vagrant.*"
-          context: AWS-Write
-          requires:
-            - setup
-      - teak/packer-build:
-          version: 1.7.5-dev2
-          github_releases_user: AlexSc
-          gpg_key_id: EC3A3F7C6C4F9D25
-          name: "Generate Node Image (Production)"
-          pre-steps:
-            - run:
-                command: sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
-            - run:
-                command: |
-                  ip=$(curl -s https://api.ipify.org)
-                  echo "My public IP address is: $ip"
-          post-steps:
-            - store_artifacts:
-                path: "language_images/node12/manifests/"
-          var: "region=us-east-1,build_account_canonical_slug=production-ci-cd"
-          except: "vagrant.*"
-          context: AWS-Write
-          packer_working_directory: "language_images/node12"
-          requires:
-            - "Generate Base Image (Production)"
+          name: "Plan (Production)"
+          workspace: "production-ci-cd"
+          continuation_parameters: "region=<< pipeline.parameters.region >>,build_account_slug=production-ci-cd"
+  image-update-only:
+    when: << pipeline.parameters.in_build_account_slug >>
+
+    jobs:
+      - teak/ami-update-continuation:
+          region: << pipeline.parameters.region >>
+          build_account_slug: << pipeline.parameters.in_build_account_slug>>

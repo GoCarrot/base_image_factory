@@ -139,6 +139,7 @@ data "amazon-ami" "base_x86_64_debian_ami" {
     virtualization-type = "hvm"
     name                = "${jsondecode(data.amazon-parameterstore.account_info.value)["environment"]}_${var.source_ami_name_prefix}*"
     architecture        = "x86_64"
+    state               = "available"
   }
   region      = var.region
   owners      = var.source_ami_owners
@@ -154,6 +155,7 @@ data "amazon-ami" "base_arm64_debian_ami" {
     virtualization-type = "hvm"
     name                = "${jsondecode(data.amazon-parameterstore.account_info.value)["environment"]}_${var.source_ami_name_prefix}*"
     architecture        = "arm64"
+    state               = "available"
   }
   region      = var.region
   owners      = var.source_ami_owners
@@ -304,7 +306,7 @@ EOT
   }
 
   provisioner "ansible" {
-    playbook_file = abspath(var.ansible_playbook)
+    playbook_file = "${path.root}/${var.ansible_playbook}"
     extra_arguments = [
       "--extra-vars", "build_environment=${local.environment} region=${var.region} build_type=${source.type}"
     ]
@@ -327,13 +329,13 @@ EOT
   # Download the package manifest locally.
   provisioner "file" {
     source      = "/tmp/package_manifest.txt"
-    destination = "manifests/${source.name}.txt"
+    destination = "${path.root}/manifests/${source.name}.txt"
     direction   = "download"
   }
 
   provisioner "file" {
     source      = "/tmp/source_package_manifest.txt"
-    destination = "manifests/source_${source.name}.txt"
+    destination = "${path.root}/manifests/source_${source.name}.txt"
     direction   = "download"
   }
 
@@ -347,7 +349,7 @@ EOT
       "sudo rm -fr /var/cache/ /var/lib/apt/lists/* /var/log/apt/ /etc/mailname /var/lib/cloud /var/lib/chrony /var/lib/teak-log-collector /root/.bash_history /root/.ssh/ /root/.ansible/ /root/.bundle/ /etc/machine-id /var/lib/dbus/machine-id",
       # Ensure we stop things that'll log before we clear logs
       "sudo systemctl stop teak-log-collector.service teak-configurator.service systemd-journald.service systemd-journald-dev-log.socket systemd-journald.socket systemd-journald-audit.socket",
-      "sudo /bin/dash -c 'find /var/log -type f | tee /dev/stderr | xargs rm'",
+      "sudo /bin/dash -c 'find /var/log -type f -not -empty | tee /dev/stderr | xargs rm'",
       # I also want to clear the empty log folder.
       "sudo rm -fr /var/log/journal/*",
       "sudo shred --remove /etc/ssh/ssh_host_*",
@@ -362,7 +364,7 @@ EOT
   }
 
   post-processor "manifest" {
-    output      = "manifests/packer-manifest.json"
+    output      = "${path.root}/manifests/packer-manifest.json"
     custom_data = {
       arch = "${trimprefix(source.name, "debian_")}"
     }

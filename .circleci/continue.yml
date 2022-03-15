@@ -1,0 +1,139 @@
+# Copyright 2021 Teak.io, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: 2.1
+
+orbs:
+  teak: teak/sdk-utils@0.5
+
+parameters:
+  run-apply:
+    type: boolean
+    default: false
+  continuation-cache-id:
+    type: string
+    default: ""
+  workspace:
+    type: string
+    default: ""
+  plan-log-url:
+    type: string
+    default: ""
+  region:
+    type: string
+    default: us-east-1
+  build_account_slug:
+    type: string
+    default: ""
+  deploy_account_slug:
+    type: string
+    default: ""
+  # Work around CircleCI brain damage.
+  # Continuation pipelines must declare all the same parameters as the setup pipeline, even
+  # though it's an error to just reuse those parameters without changes.
+  in_build_account_slug:
+    type: string
+    default: ''
+  in_deploy_account_slug:
+    type: string
+    default: ''
+
+references:
+  packer-build: &packer-build
+    version: 1.7.5-dev2
+    github_releases_user: AlexSc
+    gpg_key_id: EC3A3F7C6C4F9D25
+    name: "Generate Images (<< pipeline.parameters.build_account_slug >>)"
+    pre-steps:
+      - run:
+          name: "Prepare Circle image"
+          command: |
+            sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
+
+            ip=$(curl -s https://api.ipify.org)
+            echo "My public IP address is: $ip"
+    post-steps:
+      - store_artifacts:
+          path: "manifests/"
+    var: "region=<< pipeline.parameters.region >>,build_account_canonical_slug=<< pipeline.parameters.build_account_slug >>"
+    except: "vagrant.*"
+    context:
+      - AWS-Write
+  node-build: &node-build
+    <<: *packer-build
+    name: "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
+    post-steps:
+      - store_artifacts:
+          path: "lanugage_images/node12/manifests"
+    packer_working_directory: "language_images/node12"
+    requires:
+      - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
+
+workflows:
+  version: 2
+  apply-and-build:
+    when: << pipeline.parameters.run-apply >>
+    jobs:
+      - teak/terraform-slack-on-hold:
+          plan-log-url: << pipeline.parameters.plan-log-url >>
+          context:
+            - Slack
+      - hold:
+          name: "Human, your approval is required (<< pipeline.parameters.workspace >>)"
+          type: approval
+          requires:
+            - teak/terraform-slack-on-hold
+      - teak/terraform-apply:
+          version: 1.1.7
+          name: "Apply (<< pipeline.parameters.workspace >>)"
+          continuation_cache: << pipeline.parameters.continuation-cache-id >>
+          path: "terraform"
+          workspace: << pipeline.parameters.workspace >>
+          context: AWS-Write
+          requires:
+            - "Human, your approval is required (<< pipeline.parameters.workspace >>)"
+      - teak/packer-build:
+          <<: *packer-build
+          requires:
+            - "Apply (<< pipeline.parameters.workspace >>)"
+      - teak/build-dependent-images: &build-depdendent-images
+          name: "Build base dependent images"
+          region: << pipeline.parameters.region >>
+          build_account_slug: << pipeline.parameters.build_account_slug >>
+          ami_name_prefix: "base"
+          requires:
+            - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
+          context:
+            - AWS
+            - CircleCI
+      - teak/packer-build:
+          <<: *node-build
+      - teak/build-dependent-images: &build-dependent-node-images
+          <<: *build-depdendent-images
+          name: "Build node12 dependent images"
+          ami_name_prefix: "node12"
+          requires:
+             - "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
+  build-only:
+    when:
+      not: << pipeline.parameters.run-apply >>
+    jobs:
+      - teak/packer-build:
+          <<: *packer-build
+      - teak/build-dependent-images:
+          <<: *build-depdendent-images
+      - teak/packer-build:
+          <<: *node-build
+      - teak/build-dependent-images:
+          <<: *build-dependent-node-images
