@@ -58,16 +58,6 @@ locals {
     Application = local.service
     Service     = local.service
   }
-
-  parameter_prefix = "${module.ci_cd_account.param_prefix}/config/image_factories/${var.source_ami_name_prefix}"
-
-  slugified_project_slug = trim(replace(lower(var.circleci_project_slug), "/[^a-z0-9-_.]/", "-"), "-")
-
-  update_config = {
-    project_slug  = var.circleci_project_slug,
-    branch        = var.branch,
-    build_account = terraform.workspace
-  }
 }
 
 provider "aws" {
@@ -79,10 +69,15 @@ provider "aws" {
   }
 }
 
-resource "aws_ssm_parameter" "build-trigger" {
-  provider = aws.admin
+module "build-trigger" {
+  providers = {
+    aws = aws.admin
+  }
 
-  name  = "${local.parameter_prefix}/dependents/${local.slugified_project_slug}-${var.branch}"
-  type  = "String"
-  value = jsonencode(local.update_config)
+  source = "GoCarrot/declare-ami-dependency/aws"
+
+  branch                 = var.branch
+  build_from_account     = terraform.workspace
+  circleci_project_slug  = var.circleci_project_slug
+  source_ami_name_prefix = var.source_ami_name_prefix
 }
