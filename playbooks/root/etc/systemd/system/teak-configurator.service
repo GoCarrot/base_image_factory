@@ -17,6 +17,9 @@ Description=Teak Configurator
 Requires=teak-metaconfigurator.service network.target
 After=teak-metaconfigurator.service network.target
 
+# If we go down, keep trying to restart forever
+StartLimitIntervalSec=0
+
 [Service]
 Slice=teak-services.slice
 ReadOnlyPaths=/
