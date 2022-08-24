@@ -40,9 +40,12 @@ RestrictRealtime=yes
 LockPersonality=yes
 RemoveIPC=yes
 UMask=0033
+ProtectKernelLogs=yes
+ProtectProc=invisible
 
 SystemCallArchitectures=native
-SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @raw-io @reboot @resources @swap
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
 
 CapabilityBoundingSet=
 RestrictAddressFamilies=AF_UNIX
