@@ -52,12 +52,15 @@ RestrictRealtime=yes
 LockPersonality=yes
 RemoveIPC=yes
 UMask=0033
+ProtectKernelLogs=yes
+ProtectProc=invisible
 
 SystemCallArchitectures=native
-SystemCallFilter=~@clock @cpu-emulation @debug @module @mount @obsolete @raw-io @reboot @resources @swap
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
 
 CapabilityBoundingSet=
-RestrictAddressFamilies=~AF_NETLINK AF_PACKET
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
 RestrictNamespaces=yes
 
 Environment="GEM_HOME={{ configurator_install_dir.path }}"
