@@ -329,6 +329,8 @@ EOT
       "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s'",
       "ANSIBLE_PIPELINING=true"
     ]
+
+    use_proxy = false
   }
 
   # Remove any temporary build-dep style packages and generate a package manifest.
