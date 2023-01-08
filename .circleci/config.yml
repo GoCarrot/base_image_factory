@@ -31,7 +31,7 @@ parameters:
     default: ''
 
 orbs:
-  teak: teak/sdk-utils@0.5
+  buildomat: teak/buildomat@0.1
 
 workflows:
   version: 2
@@ -39,20 +39,20 @@ workflows:
     when:
       not: << pipeline.parameters.in_build_account_slug >>
     jobs:
-      - teak/terraform-plan: &terraform-plan
+      - buildomat/terraform-plan: &terraform-plan
           filters:
             branches:
               only:
                 - develop
-          version: 1.1.7
+          version: 1.3.6
           name: "Plan (Development)"
           path: "terraform"
           workspace: "development-ci-cd"
           continuation: true
           var: "region=<< pipeline.parameters.region >>,branch=$CIRCLE_BRANCH"
-          context: AWS-Write
+          context: AWS-OIDC-Role
           continuation_parameters: "region=<< pipeline.parameters.region >>,build_account_slug=development-ci-cd"
-      - teak/terraform-plan:
+      - buildomat/terraform-plan:
           <<: *terraform-plan
           filters:
             branches:
@@ -61,10 +61,27 @@ workflows:
           name: "Plan (Production)"
           workspace: "production-ci-cd"
           continuation_parameters: "region=<< pipeline.parameters.region >>,build_account_slug=production-ci-cd"
+
+      - buildomat/terraform-continuation:
+          filters:
+            branches:
+              only:
+                - develop
+          name: "Continue (Development)"
+          requires:
+            - "Plan (Development)"
+      - buildomat/terraform-continuation:
+          filters:
+            branches:
+              only:
+                - main
+          name: "Continue (Production)"
+          requires:
+            - "Plan (Production)"
   image-update-only:
     when: << pipeline.parameters.in_build_account_slug >>
 
     jobs:
-      - teak/ami-update-continuation:
+      - buildomat/ami-update-continuation:
           region: << pipeline.parameters.region >>
           build_account_slug: << pipeline.parameters.in_build_account_slug>>

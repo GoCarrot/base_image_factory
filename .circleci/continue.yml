@@ -15,7 +15,7 @@
 version: 2.1
 
 orbs:
-  teak: teak/sdk-utils@0.5
+  buildomat: teak/buildomat@0.1
 
 parameters:
   run-apply:
@@ -94,7 +94,7 @@ workflows:
   apply-and-build:
     when: << pipeline.parameters.run-apply >>
     jobs:
-      - teak/terraform-slack-on-hold:
+      - buildomat/terraform-slack-on-hold:
           plan-log-url: << pipeline.parameters.plan-log-url >>
           context:
             - Slack
@@ -103,20 +103,20 @@ workflows:
           type: approval
           requires:
             - teak/terraform-slack-on-hold
-      - teak/terraform-apply:
+      - buildomat/terraform-apply:
           version: 1.1.7
           name: "Apply (<< pipeline.parameters.workspace >>)"
           continuation_cache: << pipeline.parameters.continuation-cache-id >>
           path: "terraform"
           workspace: << pipeline.parameters.workspace >>
-          context: AWS-Write
+          context: AWS-OIDC-Role
           requires:
             - "Human, your approval is required (<< pipeline.parameters.workspace >>)"
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *packer-build
           requires:
             - "Apply (<< pipeline.parameters.workspace >>)"
-      - teak/build-dependent-images: &build-depdendent-images
+      - buildomat/build-dependent-images: &build-depdendent-images
           name: "Build base dependent images"
           region: << pipeline.parameters.region >>
           build_account_slug: << pipeline.parameters.build_account_slug >>
@@ -126,17 +126,17 @@ workflows:
           context:
             - AWS
             - CircleCI
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *node-build
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *ruby24-build
-      - teak/build-dependent-images: &build-dependent-node-images
+      - buildomat/build-dependent-images: &build-dependent-node-images
           <<: *build-depdendent-images
           name: "Build node12 dependent images"
           ami_name_prefix: "node12"
           requires:
              - "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
-      - teak/build-dependent-images: &build-dependent-ruby24-images
+      - buildomat/build-dependent-images: &build-dependent-ruby24-images
           <<: *build-depdendent-images
           name: "Build ruby24 dependent images"
           ami_name_prefix: "ruby24"
@@ -146,15 +146,15 @@ workflows:
     when:
       not: << pipeline.parameters.run-apply >>
     jobs:
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *packer-build
-      - teak/build-dependent-images:
+      - buildomat/build-dependent-images:
           <<: *build-depdendent-images
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *node-build
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *ruby24-build
-      - teak/build-dependent-images:
+      - buildomat/build-dependent-images:
           <<: *build-dependent-node-images
-      - teak/build-dependent-images:
+      - buildomat/build-dependent-images:
           <<: *build-dependent-ruby24-images
