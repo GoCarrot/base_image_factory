@@ -79,15 +79,6 @@ references:
     packer_working_directory: "language_images/node12"
     requires:
       - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
-  ruby24-build: &ruby24-build
-    <<: *packer-build
-    name: "Generate Ruby 2.4 Image (<< pipeline.parameters.build_account_slug >>)"
-    post-steps:
-      - store_artifacts:
-          path: "language_images/ruby24/manifests"
-    packer_working_directory: "language_images/ruby24"
-    requires:
-      - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
 
 workflows:
   version: 2
@@ -128,20 +119,12 @@ workflows:
             - CircleCI
       - buildomat/packer-build:
           <<: *node-build
-      - buildomat/packer-build:
-          <<: *ruby24-build
       - buildomat/build-dependent-images: &build-dependent-node-images
           <<: *build-depdendent-images
           name: "Build node12 dependent images"
           ami_name_prefix: "node12"
           requires:
              - "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
-      - buildomat/build-dependent-images: &build-dependent-ruby24-images
-          <<: *build-depdendent-images
-          name: "Build ruby24 dependent images"
-          ami_name_prefix: "ruby24"
-          requires:
-             - "Generate Ruby 2.4 Image (<< pipeline.parameters.build_account_slug >>)"
   build-only:
     when:
       not: << pipeline.parameters.run-apply >>
@@ -152,9 +135,5 @@ workflows:
           <<: *build-depdendent-images
       - buildomat/packer-build:
           <<: *node-build
-      - buildomat/packer-build:
-          <<: *ruby24-build
       - buildomat/build-dependent-images:
           <<: *build-dependent-node-images
-      - buildomat/build-dependent-images:
-          <<: *build-dependent-ruby24-images
