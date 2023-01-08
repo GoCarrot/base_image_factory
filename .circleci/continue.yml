@@ -15,7 +15,7 @@
 version: 2.1
 
 orbs:
-  teak: teak/sdk-utils@0.5
+  buildomat: teak/buildomat@0.1
 
 parameters:
   run-apply:
@@ -51,25 +51,18 @@ parameters:
 
 references:
   packer-build: &packer-build
+    image: teakinc/ansible:current
     version: 1.7.5-dev2
     github_releases_user: AlexSc
     gpg_key_id: EC3A3F7C6C4F9D25
     name: "Generate Images (<< pipeline.parameters.build_account_slug >>)"
-    pre-steps:
-      - run:
-          name: "Prepare Circle image"
-          command: |
-            sudo apt-get update && sudo apt-get install -y --no-install-recommends ansible
-
-            ip=$(curl -s https://api.ipify.org)
-            echo "My public IP address is: $ip"
     post-steps:
       - store_artifacts:
           path: "manifests/"
     var: "region=<< pipeline.parameters.region >>,build_account_canonical_slug=<< pipeline.parameters.build_account_slug >>"
     except: "vagrant.*"
     context:
-      - AWS-Write
+      - AWS-OIDC-Role
   node-build: &node-build
     <<: *packer-build
     name: "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
@@ -79,22 +72,13 @@ references:
     packer_working_directory: "language_images/node12"
     requires:
       - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
-  ruby24-build: &ruby24-build
-    <<: *packer-build
-    name: "Generate Ruby 2.4 Image (<< pipeline.parameters.build_account_slug >>)"
-    post-steps:
-      - store_artifacts:
-          path: "language_images/ruby24/manifests"
-    packer_working_directory: "language_images/ruby24"
-    requires:
-      - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
 
 workflows:
   version: 2
   apply-and-build:
     when: << pipeline.parameters.run-apply >>
     jobs:
-      - teak/terraform-slack-on-hold:
+      - buildomat/terraform-slack-on-hold:
           plan-log-url: << pipeline.parameters.plan-log-url >>
           context:
             - Slack
@@ -102,21 +86,21 @@ workflows:
           name: "Human, your approval is required (<< pipeline.parameters.workspace >>)"
           type: approval
           requires:
-            - teak/terraform-slack-on-hold
-      - teak/terraform-apply:
+            - buildomat/terraform-slack-on-hold
+      - buildomat/terraform-apply:
           version: 1.1.7
           name: "Apply (<< pipeline.parameters.workspace >>)"
           continuation_cache: << pipeline.parameters.continuation-cache-id >>
           path: "terraform"
           workspace: << pipeline.parameters.workspace >>
-          context: AWS-Write
+          context: AWS-OIDC-Role
           requires:
             - "Human, your approval is required (<< pipeline.parameters.workspace >>)"
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *packer-build
           requires:
             - "Apply (<< pipeline.parameters.workspace >>)"
-      - teak/build-dependent-images: &build-depdendent-images
+      - buildomat/build-dependent-images: &build-depdendent-images
           name: "Build base dependent images"
           region: << pipeline.parameters.region >>
           build_account_slug: << pipeline.parameters.build_account_slug >>
@@ -124,37 +108,25 @@ workflows:
           requires:
             - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
           context:
-            - AWS
+            - AWS-OIDC-Role
             - CircleCI
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *node-build
-      - teak/packer-build:
-          <<: *ruby24-build
-      - teak/build-dependent-images: &build-dependent-node-images
+      - buildomat/build-dependent-images: &build-dependent-node-images
           <<: *build-depdendent-images
           name: "Build node12 dependent images"
           ami_name_prefix: "node12"
           requires:
              - "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
-      - teak/build-dependent-images: &build-dependent-ruby24-images
-          <<: *build-depdendent-images
-          name: "Build ruby24 dependent images"
-          ami_name_prefix: "ruby24"
-          requires:
-             - "Generate Ruby 2.4 Image (<< pipeline.parameters.build_account_slug >>)"
   build-only:
     when:
       not: << pipeline.parameters.run-apply >>
     jobs:
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *packer-build
-      - teak/build-dependent-images:
+      - buildomat/build-dependent-images:
           <<: *build-depdendent-images
-      - teak/packer-build:
+      - buildomat/packer-build:
           <<: *node-build
-      - teak/packer-build:
-          <<: *ruby24-build
-      - teak/build-dependent-images:
+      - buildomat/build-dependent-images:
           <<: *build-dependent-node-images
-      - teak/build-dependent-images:
-          <<: *build-dependent-ruby24-images
