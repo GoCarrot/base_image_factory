@@ -62,7 +62,7 @@ references:
     var: "region=<< pipeline.parameters.region >>,build_account_canonical_slug=<< pipeline.parameters.build_account_slug >>"
     except: "vagrant.*"
     context:
-      - AWS-Write
+      - AWS-OIDC-Role
   node-build: &node-build
     <<: *packer-build
     name: "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
