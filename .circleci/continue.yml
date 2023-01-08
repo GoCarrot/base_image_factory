@@ -86,7 +86,7 @@ workflows:
           name: "Human, your approval is required (<< pipeline.parameters.workspace >>)"
           type: approval
           requires:
-            - teak/terraform-slack-on-hold
+            - buildomat/terraform-slack-on-hold
       - buildomat/terraform-apply:
           version: 1.1.7
           name: "Apply (<< pipeline.parameters.workspace >>)"
@@ -108,7 +108,7 @@ workflows:
           requires:
             - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
           context:
-            - AWS
+            - AWS-OIDC-Role
             - CircleCI
       - buildomat/packer-build:
           <<: *node-build
