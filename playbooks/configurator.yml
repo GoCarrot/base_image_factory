@@ -37,6 +37,6 @@
 
     - name: Install Configomat
       shell: |
-        gem install config_o_mat -v "~> 0.5.3" -N --conservative --minimal-deps
+        gem install config_o_mat -v "~> 0.5.5" -N --conservative --minimal-deps
       environment:
         GEM_HOME: "{{ configurator_install_dir.path }}"
