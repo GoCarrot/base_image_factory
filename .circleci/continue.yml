@@ -83,7 +83,6 @@ references:
       - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
 
 workflows:
-  version: 2
   apply-and-build:
     when: << pipeline.parameters.run-apply >>
     jobs:
