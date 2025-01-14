@@ -1,0 +1,97 @@
+# Copyright 2023 Sixty AI, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Install Build Tools
+      register: build_tools
+      apt:
+        update_cache: yes
+        install_recommends: no
+        state: present
+        name:
+          - git
+          - build-essential
+
+    - name: Install Basic Dependencies
+      apt:
+        install_recommends: no
+        state: present
+        name:
+          - openssl
+          - libssl-dev
+          - libreadline-dev
+          - zlib1g-dev
+          - libyaml-dev
+
+    - name: Install Ruby
+      register: install_ruby
+      args:
+        executable: /bin/bash
+      shell: |
+        set -euo pipefail
+
+        echo '---' > ~/.gemrc
+        echo 'install: --no-document' >> ~/.gemrc
+        echo 'update: --no-document' >> ~/.gemrc
+        echo 'gem: --no-document' >> ~/.gemrc
+
+        export TEMPDIR="/tmp/build_ruby"
+        mkdir "$TEMPDIR"
+        mount -t ramfs -o size=512m ramfs "$TEMPDIR"
+        cd "$TEMPDIR"
+
+        echo "Downloading Ruby ${RUBY_VERSION}..."
+        time wget --quiet https://cache.ruby-lang.org/pub/ruby/${RUBY_SERIES}/ruby-${RUBY_VERSION}.tar.gz
+        echo $?
+
+        ACTUAL_CHECKSUM=$(shasum -a 256 ruby-${RUBY_VERSION}.tar.gz | cut -d' ' -f1)
+        if [[ "${ACTUAL_CHECKSUM}" != "${RUBY_CHECKSUM}" ]]; then
+          echo Checksum mismatch, got ${ACTUAL_CHECKSUM} but expected ${RUBY_CHECKSUM}
+          exit 1
+        fi
+
+        tar xzf ruby-${RUBY_VERSION}.tar.gz
+        cd ruby-${RUBY_VERSION}
+
+        echo "Running configure:"
+        ./configure
+
+        echo "Running make:"
+        core_count=$(nproc --all)
+        jobs_count=$((1 * core_count))
+        make -j $jobs_count
+
+        echo "Running make install:"
+        sudo make install
+
+        echo $(which ruby)
+        ruby --version
+        bundle --version
+      environment:
+        RUBY_SERIES: "3.1"
+        RUBY_VERSION: "3.1.6"
+        RUBY_CHECKSUM: 0d0dafb859e76763432571a3109d1537d976266be3083445651dc68deed25c22
+    - debug: var=install_ruby.stdout_lines
+
+    - name: Remove Build Tools
+      apt:
+        state: absent
+        purge: yes
+        name:
+          - git
+          - build-essential
