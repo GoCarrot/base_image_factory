@@ -15,3 +15,4 @@
 ami_prefix             = "ruby316"
 source_ami_name_prefix = "base"
 cost_center            = "ruby316_image"
+volume_size            = 4 # We use about 400MB more space, and this can cause WEIRD image build failures downstream!
