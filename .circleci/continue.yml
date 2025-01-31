@@ -72,9 +72,17 @@ references:
     packer_working_directory: "language_images/node12"
     requires:
       - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
+  ruby-build: &ruby-build
+    <<: *packer-build
+    name: "Generate Ruby 3.1.6 Image (<< pipeline.parameters.build_account_slug >>)"
+    post-steps:
+      - store_artifacts:
+          path: "language_images/ruby316/manifests"
+    packer_working_directory: "language_images/ruby316"
+    requires:
+      - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
 
 workflows:
-  version: 2
   apply-and-build:
     when: << pipeline.parameters.run-apply >>
     jobs:
@@ -118,6 +126,14 @@ workflows:
           ami_name_prefix: "node12"
           requires:
              - "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
+      - buildomat/packer-build:
+          <<: *ruby-build
+      - buildomat/build-dependent-images: &build-dependent-ruby-images
+          <<: *build-depdendent-images
+          name: "Build ruby316 dependent images"
+          ami_name_prefix: "ruby316"
+          requires:
+             - "Generate Ruby 3.1.6 Image (<< pipeline.parameters.build_account_slug >>)"
   build-only:
     when:
       not: << pipeline.parameters.run-apply >>
@@ -130,3 +146,7 @@ workflows:
           <<: *node-build
       - buildomat/build-dependent-images:
           <<: *build-dependent-node-images
+      - buildomat/packer-build:
+          <<: *ruby-build
+      - buildomat/build-dependent-images:
+          <<: *build-dependent-ruby-images
