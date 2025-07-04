@@ -331,7 +331,7 @@ EOT
       "--extra-vars", "build_environment=${local.environment} region=${var.region} build_type=${source.type}"
     ]
     ansible_env_vars = [
-      "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s'",
+      "ANSIBLE_SSH_ARGS=-o ForwardAgent=yes -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s",
       "ANSIBLE_PIPELINING=true"
     ]
 
