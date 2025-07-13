@@ -13,12 +13,17 @@
 # limitations under the License.
 
 packer {
-  required_version = "~> 1.7.3"
+  required_version = "~> 1.12"
 
   required_plugins {
     amazon = {
-      version = "=1.0.2-dev"
-      source  = "github.com/AlexSc/amazon"
+      version = "~> 1"
+      source  = "github.com/hashicorp/amazon"
+    }
+
+    ansible = {
+      version = "~> 1"
+      source  = "github.com/hashicorp/ansible"
     }
 
     vagrant = {
@@ -326,7 +331,7 @@ EOT
       "--extra-vars", "build_environment=${local.environment} region=${var.region} build_type=${source.type}"
     ]
     ansible_env_vars = [
-      "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s'",
+      "ANSIBLE_SSH_ARGS=-o ForwardAgent=yes -o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPersist=60s",
       "ANSIBLE_PIPELINING=true"
     ]
 
