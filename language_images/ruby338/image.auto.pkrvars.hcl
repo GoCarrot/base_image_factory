@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ami_prefix             = "ruby316"
+ami_prefix             = "ruby338"
 source_ami_name_prefix = "base"
-cost_center            = "ruby316_image"
+cost_center            = "ruby338_image"
 volume_size            = 4 # We use about 400MB more space, and this can cause WEIRD image build failures downstream!
