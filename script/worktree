@@ -85,6 +85,8 @@ else
   fi
 fi
 
+"$(dirname "$0")/set_worktree_identity" "$main_tree" "$worktree_path"
+
 # --- Copy local config from main worktree ---
 
 if [ -f "$main_tree/.env" ]; then
