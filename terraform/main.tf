@@ -22,12 +22,12 @@ terraform {
     kms_key_id     = "a285ccc4-035b-4436-834f-7e0b2d5b0f60"
   }
 
-  required_version = ">= 1.1"
+  required_version = ">= 1.16.4"
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4"
+      version = "~> 6"
     }
   }
 }
@@ -39,7 +39,7 @@ provider "aws" {
 
 module "ci_cd_account" {
   source  = "GoCarrot/accountomat_read/aws"
-  version = "0.0.3"
+  version = "0.0.6"
 
   providers = {
     aws = aws.meta_read
@@ -74,7 +74,8 @@ module "build-trigger" {
     aws = aws.admin
   }
 
-  source = "GoCarrot/declare-ami-dependency/aws"
+  source  = "GoCarrot/declare-ami-dependency/aws"
+  version = "0.0.4"
 
   branch                 = var.branch
   build_from_account     = terraform.workspace
