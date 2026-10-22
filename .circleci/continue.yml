@@ -61,6 +61,7 @@ references:
     except: "vagrant.*"
     context:
       - AWS-OIDC-Role
+      - GitHub-ReadOnly
   node-build: &node-build
     <<: *packer-build
     name: "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
