@@ -48,6 +48,9 @@ parameters:
   in_deploy_account_slug:
     type: string
     default: ''
+  environment-active:
+    type: boolean
+    default: true
 
 references:
   packer-build: &packer-build
