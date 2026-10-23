@@ -20,10 +20,7 @@
     build_environment: development
 
   pre_tasks:
-    # bullseye-security moved to archive.debian.org after Debian 11 LTS ended, so
-    # security.debian.org 404s on every deb11uN package. This is a raw task so it
-    # works before ansible's apt module has bootstrapped python3-apt, which it
-    # does before honoring update_cache.
+    # bullseye-security moved to archive.debian.org after Debian 11 LTS ended.
     - name: Point bullseye-security at archive.debian.org and refresh apt
       raw: |
         set -e
