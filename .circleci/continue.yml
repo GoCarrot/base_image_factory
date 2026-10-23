@@ -48,6 +48,9 @@ parameters:
   in_deploy_account_slug:
     type: string
     default: ''
+  environment-active:
+    type: boolean
+    default: true
 
 references:
   packer-build: &packer-build
@@ -61,6 +64,7 @@ references:
     except: "vagrant.*"
     context:
       - AWS-OIDC-Role
+      - GitHub-ReadOnly
   node-build: &node-build
     <<: *packer-build
     name: "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
