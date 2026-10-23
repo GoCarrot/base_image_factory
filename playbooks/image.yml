@@ -20,6 +20,17 @@
     build_environment: development
 
   pre_tasks:
+    # bullseye-security moved to archive.debian.org after Debian 11 LTS ended.
+    - name: Point bullseye-security at archive.debian.org and refresh apt
+      raw: |
+        set -e
+        for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+          [ -f "$f" ] || continue
+          sed -i -E 's#https?://(security|deb)\.debian\.org/debian-security#http://archive.debian.org/debian-security#g' "$f"
+        done
+        DEBIAN_FRONTEND=noninteractive apt-get update
+      changed_when: true
+
     - include_vars: "{{ item }}"
       with_first_found:
         - "vars_{{ build_environment }}.yml"
