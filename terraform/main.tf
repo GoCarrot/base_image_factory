@@ -14,13 +14,12 @@
 
 terraform {
   backend "s3" {
-    bucket         = "teak-terraform-state"
-    key            = "base_image_factory"
-    region         = "us-east-1"
-    dynamodb_table = "teak-terraform-locks"
-    use_lockfile   = true
-    encrypt        = true
-    kms_key_id     = "a285ccc4-035b-4436-834f-7e0b2d5b0f60"
+    bucket       = "teak-terraform-state"
+    key          = "base_image_factory"
+    region       = "us-east-1"
+    use_lockfile = true
+    encrypt      = true
+    kms_key_id   = "a285ccc4-035b-4436-834f-7e0b2d5b0f60"
   }
 
   required_version = ">= 1.16.4"
