@@ -95,7 +95,10 @@ references:
 
 workflows:
   apply-and-build:
-    when: << pipeline.parameters.run-apply >>
+    when:
+      and:
+        - << pipeline.parameters.run-apply >>
+        - << pipeline.parameters.environment-active >>
     jobs:
       - buildomat/terraform-slack-on-hold:
           plan-log-url: << pipeline.parameters.plan-log-url >>
@@ -155,7 +158,9 @@ workflows:
              - "Generate Ruby 3.3.8 Image (<< pipeline.parameters.build_account_slug >>)"
   build-only:
     when:
-      not: << pipeline.parameters.run-apply >>
+      or:
+        - not: << pipeline.parameters.environment-active >>
+        - not: << pipeline.parameters.run-apply >>
     jobs:
       - buildomat/packer-build:
           <<: *packer-build
