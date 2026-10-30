@@ -74,24 +74,6 @@ references:
     packer_working_directory: "language_images/node12"
     requires:
       - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
-  ruby316-build: &ruby316-build
-    <<: *packer-build
-    name: "Generate Ruby 3.1.6 Image (<< pipeline.parameters.build_account_slug >>)"
-    post-steps:
-      - store_artifacts:
-          path: "language_images/ruby316/manifests"
-    packer_working_directory: "language_images/ruby316"
-    requires:
-      - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
-  ruby338-build: &ruby338-build
-    <<: *packer-build
-    name: "Generate Ruby 3.3.8 Image (<< pipeline.parameters.build_account_slug >>)"
-    post-steps:
-      - store_artifacts:
-          path: "language_images/ruby338/manifests"
-    packer_working_directory: "language_images/ruby338"
-    requires:
-      - "Generate Images (<< pipeline.parameters.build_account_slug >>)"
 
 workflows:
   apply-and-build:
@@ -140,22 +122,6 @@ workflows:
           ami_name_prefix: "node12"
           requires:
              - "Generate Node Image (<< pipeline.parameters.build_account_slug >>)"
-      - buildomat/packer-build:
-          <<: *ruby316-build
-      - buildomat/build-dependent-images: &build-dependent-ruby316-images
-          <<: *build-depdendent-images
-          name: "Build ruby316 dependent images"
-          ami_name_prefix: "ruby316"
-          requires:
-             - "Generate Ruby 3.1.6 Image (<< pipeline.parameters.build_account_slug >>)"
-      - buildomat/packer-build:
-          <<: *ruby338-build
-      - buildomat/build-dependent-images: &build-dependent-ruby338-images
-          <<: *build-depdendent-images
-          name: "Build ruby338 dependent images"
-          ami_name_prefix: "ruby338"
-          requires:
-             - "Generate Ruby 3.3.8 Image (<< pipeline.parameters.build_account_slug >>)"
   build-only:
     when:
       or:
@@ -170,11 +136,3 @@ workflows:
           <<: *node-build
       - buildomat/build-dependent-images:
           <<: *build-dependent-node-images
-      - buildomat/packer-build:
-          <<: *ruby316-build
-      - buildomat/build-dependent-images:
-          <<: *build-dependent-ruby316-images
-      - buildomat/packer-build:
-          <<: *ruby338-build
-      - buildomat/build-dependent-images:
-          <<: *build-dependent-ruby338-images
