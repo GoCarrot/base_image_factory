@@ -72,6 +72,8 @@ NotifyAccess=main
 Type=notify
 ExecStart={{ configurator_install_dir.path }}/bin/config_o_mat-configurator
 Restart=always
+# Wait between restarts; each start receives every profile in full. Flat, so it works on any systemd.
+RestartSec=30s
 
 [Install]
 WantedBy=multi-user.target
